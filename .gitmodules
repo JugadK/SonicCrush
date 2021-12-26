@@ -1,6 +1,6 @@
 [submodule "modules/muparser"]
 	path = modules/muparser
-	url = https://github.com/beltoforion/muparser.git
+	url = https://github.com/beltoforion/muparser
 
 [submodule "modules/JUCE"]
 	path = modules/JUCE
