@@ -1,0 +1,4 @@
+.cache
+modules
+build
+workspace.code-workspace
