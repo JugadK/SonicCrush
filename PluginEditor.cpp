@@ -43,16 +43,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   SquareClippingButton.setRadioGroupId(100);
   SawToothClippingButton.setRadioGroupId(100);
 
- /* noClippingButton.onClick = [this] {
-    updateToggleState(&noClippingButton, "None");
-  };
-  SquareClippingButton.onClick = [this] {
-    updateToggleState(&SquareClippingButton, "Square");
-  };
-  SawToothClippingButton.onClick = [this] {
-    updateToggleState(&SawToothClippingButton, "SawTooth");
-  }; */
-
   addAndMakeVisible(noDistortionButton);
   addAndMakeVisible(tripleExponentialSmoothingButton);
   addAndMakeVisible(customDistortionEquationButton);
@@ -68,23 +58,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   tripleExponentialSmoothingButton.setRadioGroupId(101);
   customDistortionEquationButton.setRadioGroupId(101);
 
-  /* noDistortionButton.onClick = [this] {
-    updateToggleState(&noDistortionButton, "No Distortion");
-  };
-  tripleExponentialSmoothingButton.onClick = [this] {
-    updateToggleState(&tripleExponentialSmoothingButton,
-                      "Triple Smoothing Distortion");
-  };
-  customDistortionEquationButton.onClick = [this] {
-    updateToggleState(&customDistortionEquationButton, "Custom Distortion");
-  }; */
-
   addAndMakeVisible(equationInput);
   equationInput.onReturnKey = [this] { onReturnPressed(&equationInput); };
-
-  sawToothIncrementSlider.setRange(0.0, 0.0001);
-  sawToothIncrementSlider.setValue(0);
-  sawToothIncrementSlider.addListener(this);
 
   addAndMakeVisible(gainSlider);
   addAndMakeVisible(postGainSlider);
@@ -110,16 +85,6 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g) {
   //    juce::Colours::transparentBlack);
   g.setColour(juce::Colours::transparentBlack);
   g.setFont(15.0f);
-}
-
-void AudioPluginAudioProcessorEditor::updateToggleState(juce::Button *button,
-                                                        juce::String name) {
-
-  
-}
-
-void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
- 
 }
 
 void AudioPluginAudioProcessorEditor::onReturnPressed(

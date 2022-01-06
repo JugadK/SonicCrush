@@ -5,7 +5,6 @@
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor,
-                                        private juce::Slider::Listener,
                                         juce::OpenGLContext {
 public:
   explicit AudioPluginAudioProcessorEditor(
@@ -21,7 +20,6 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState &valueTreeState;
-  void sliderValueChanged(juce::Slider *slider) override;
 
   typedef juce::AudioProcessorValueTreeState::SliderAttachment SliderAttachment;
   typedef juce::AudioProcessorValueTreeState::ButtonAttachment ButtonAttachment;
