@@ -179,39 +179,35 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // the samples and the outer loop is handling the channels.
   // Alternatively, you can process the samples with the channels
   // interleaved by keeping the same state.
+
+  distortionEquationParser.SetExpr(currentDistortionEquation);
+  distortionEquationParser.DefineVar("x", &varX);
+  distortionEquationParser.DefineVar("e", &eulersNumber);
+  distortionEquationParser.DefineVar("pi", &pi);
+
   for (int channel = 0; channel < totalNumInputChannels; ++channel) {
 
     auto *channelData = buffer.getWritePointer(channel);
 
     try {
-      double eulersNumber = 2.71828;
-      double pi = 3.14159;
-      double varX;
-
-      mu::Parser distortionEquationParser;
-      distortionEquationParser.SetExpr(currentDistortionEquation);
-      distortionEquationParser.DefineVar("x", &varX);
-      distortionEquationParser.DefineVar("e", &eulersNumber);
-      distortionEquationParser.DefineVar("pi", &pi);
-
-      // This may cause lots of overhead,
-      // preGain = preGainParameter->load();
-      //  postGain = postGainParameter->load();
-      //  clipThreshold = clipParameter->load();
 
       clipThreshold = *clipParameter;
       preGain = *preGainParameter;
       postGain = *postGainParameter;
+
+      // For Some reason we can only get parameters back as floats, so to use
+      // them as booleans we determine if they are 1 or 0
 
       enableSquareClipping = *squareClippingParameter < 1 ? false : true;
       enableSawToothClipping = *sawToothClippingParameter < 1 ? false : true;
 
       enableTripleExponentialDistortion =
           *tripleExponentialParameter < 1 ? false : true;
-      enableCustomDistortionEquation = *customDistortionParameter < 1 ? false : true;
+      enableCustomDistortionEquation =
+          *customDistortionParameter < 1 ? false : true;
 
-      // For Some reason we can only get parameters back as floats, so to use
-      // them as booleans we determine if they are 1 or 0
+      if (enableCustomDistortionEquation) {
+      }
 
       for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 

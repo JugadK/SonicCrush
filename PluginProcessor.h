@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "modules/muparser/include/muParser.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor : public juce::AudioProcessor {
@@ -38,6 +39,12 @@ public:
   bool noDistortion = true;
   bool enableTripleExponentialDistortion = false;
   bool enableCustomDistortionEquation = false;
+
+  double eulersNumber = 2.71828;
+  double pi = 3.14159;
+  double varX;
+  mu::Parser distortionEquationParser;
+
 
   float currentSawToothStep = 0.0f;
 
