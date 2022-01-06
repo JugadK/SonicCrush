@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "modules/muparser/include/muParser.h"
+#include <string>
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -12,7 +13,54 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-      ) {
+              ),
+      parameters(*this, nullptr, juce::Identifier("SonicCrush"),
+                 {
+                     std::make_unique<juce::AudioParameterFloat>(
+                         "preGain", "preGain", -40.0f, 80.0f, 1.0f),
+                     std::make_unique<juce::AudioParameterFloat>(
+                         "postGain", "postGain", -40.0f, 80.0f, 1.0f),
+                     std::make_unique<juce::AudioParameterFloat>(
+                         "clipValue", "clipValue", -1.0f, 1.0f, 1.0f),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "squareClipping",  // parameterID
+                         "Square Clipping", // parameter name
+                         false),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "sawToothClipping",  // parameterID
+                         "Sawtooth Clipping", // parameter name
+                         false),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "tripleExponentialDistortion",   // parameterID
+                         "Triple Exponential Distortion", // parameter name
+                         false),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "customDistortion",  // parameterID
+                         "Custom Distortion", // parameter name
+                         false),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "noDistortion",  // parameterID
+                         "No Distortion", // parameter name
+                         true),
+                     std::make_unique<juce::AudioParameterBool>(
+                         "noClipping",  // parameterID
+                         "No Clipping", // parameter name
+                         true),
+                 }) {
+  // phaseParameter = parameters.getRawParameterValue("invertPhase");
+
+  preGainParameter = parameters.getRawParameterValue("preGain");
+  postGainParameter = parameters.getRawParameterValue("postGain");
+  clipParameter = parameters.getRawParameterValue("clipValue");
+  noClippingParameter = parameters.getRawParameterValue("noClipping");
+  sawToothClippingParameter =
+      parameters.getRawParameterValue("sawToothClipping");
+  squareClippingParameter = parameters.getRawParameterValue("squareClipping");
+  noDistortionParameter = parameters.getRawParameterValue("noDistortion");
+  tripleExponentialParameter =
+      parameters.getRawParameterValue("tripleExponentialDistortion");
+  customDistortionParameter =
+      parameters.getRawParameterValue("customDistortion");
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
@@ -136,14 +184,39 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
     auto *channelData = buffer.getWritePointer(channel);
 
     try {
-      double var_x;
+      double eulersNumber = 2.71828;
+      double pi = 3.14159;
+      double varX;
+
       mu::Parser distortionEquationParser;
       distortionEquationParser.SetExpr(currentDistortionEquation);
-      distortionEquationParser.DefineVar("x", &var_x);
+      distortionEquationParser.DefineVar("x", &varX);
+      distortionEquationParser.DefineVar("e", &eulersNumber);
+      distortionEquationParser.DefineVar("pi", &pi);
+
+      // This may cause lots of overhead,
+      // preGain = preGainParameter->load();
+      //  postGain = postGainParameter->load();
+      //  clipThreshold = clipParameter->load();
+
+      clipThreshold = *clipParameter;
+      preGain = *preGainParameter;
+      postGain = *postGainParameter;
+
+      enableSquareClipping = *squareClippingParameter < 1 ? false : true;
+      enableSawToothClipping = *sawToothClippingParameter < 1 ? false : true;
+
+      enableTripleExponentialDistortion =
+          *tripleExponentialParameter < 1 ? false : true;
+      enableCustomDistortionEquation = *customDistortionParameter < 1 ? false : true;
+
+      // For Some reason we can only get parameters back as floats, so to use
+      // them as booleans we determine if they are 1 or 0
 
       for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-        channelData[sample] = buffer.getSample(channel, sample) * rawVolume;
+        channelData[sample] =
+            buffer.getSample(channel, sample) * pow(10, *preGainParameter / 20);
 
         if (enableTripleExponentialDistortion) {
 
@@ -151,12 +224,12 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
         } else if (enableCustomDistortionEquation) {
 
-          var_x = channelData[sample];
+          varX = channelData[sample];
 
           channelData[sample] = distortionEquationParser.Eval();
         }
 
-        if (std::abs(channelData[sample]) > (float)clipThreshold) {
+        if (std::abs(channelData[sample]) > clipThreshold) {
 
           if (enableSquareClipping) {
 
@@ -168,13 +241,10 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
               channelData[sample] = clipThreshold;
             }
-
           } else if (enableSawToothClipping) {
 
             currentSawToothStep =
                 currentSawToothStep + currentSawToothStepIncrement;
-
-            std::cout << currentSawToothStep;
 
             if (channelData[sample] < 0.0f) {
 
@@ -188,6 +258,8 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
         } else {
           currentSawToothStep = 0.0f;
         }
+
+        channelData[sample] = channelData[sample] * pow(10, postGain / 20);
       }
     } catch (mu::Parser::exception_type &e) {
       std::cout << e.GetMsg() << std::endl;
@@ -201,7 +273,7 @@ bool AudioPluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *AudioPluginAudioProcessor::createEditor() {
-  return new AudioPluginAudioProcessorEditor(*this);
+  return new AudioPluginAudioProcessorEditor(*this, parameters);
 }
 
 //==============================================================================
@@ -211,6 +283,10 @@ void AudioPluginAudioProcessor::getStateInformation(
   // You could do that either as raw data, or use the XML or ValueTree classes
   // as intermediaries to make it easy to save and load complex data.
 
+  auto state = parameters.copyState();
+  std::unique_ptr<juce::XmlElement> xml(state.createXml());
+  copyXmlToBinary(*xml, destData);
+
   juce::ignoreUnused(destData);
 }
 
@@ -219,6 +295,13 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
   // call.
+
+  std::unique_ptr<juce::XmlElement> xmlState(
+      getXmlFromBinary(data, sizeInBytes));
+
+  if (xmlState.get() != nullptr)
+    if (xmlState->hasTagName(parameters.state.getType()))
+      parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 
   juce::ignoreUnused(data, sizeInBytes);
 }
