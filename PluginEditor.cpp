@@ -4,8 +4,8 @@
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
-    AudioPluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), audioProcessor(p) {
+    AudioPluginAudioProcessor &p, juce::AudioProcessorValueTreeState &vts)
+    : AudioProcessorEditor(&p), valueTreeState(vts), audioProcessor(p) {
 
   // Make sure that before the constructor has finished, you've set the
   // editor's size to whatever you need it to be.
@@ -17,11 +17,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   };
 
   addAndMakeVisible(gainSliderLabel);
+  addAndMakeVisible(postGainSliderLabel);
   addAndMakeVisible(clipSliderLabel);
   addAndMakeVisible(sawtoothIncrementSliderLabel);
 
   gainSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
-  gainSliderLabel.setText("Gain", juce::dontSendNotification);
+  gainSliderLabel.setText("Pre Gain", juce::dontSendNotification);
+  postGainSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+  postGainSliderLabel.setText("Post Gain", juce::dontSendNotification);
   clipSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
   clipSliderLabel.setText("Clip", juce::dontSendNotification);
 
@@ -29,11 +32,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(SawToothClippingButton);
   addAndMakeVisible(noClippingButton);
 
+  squareClippingAttachment.reset(
+      new ButtonAttachment(valueTreeState, "squareClipping", SquareClippingButton));
+  sawToothClippingAttachment.reset(
+      new ButtonAttachment(valueTreeState, "sawToothClipping", SawToothClippingButton));
+  noClippingAttachment.reset(
+      new ButtonAttachment(valueTreeState, "noClipping", noClippingButton)); 
+
   noClippingButton.setRadioGroupId(100);
   SquareClippingButton.setRadioGroupId(100);
   SawToothClippingButton.setRadioGroupId(100);
 
-  noClippingButton.onClick = [this] {
+ /* noClippingButton.onClick = [this] {
     updateToggleState(&noClippingButton, "None");
   };
   SquareClippingButton.onClick = [this] {
@@ -41,47 +51,51 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   };
   SawToothClippingButton.onClick = [this] {
     updateToggleState(&SawToothClippingButton, "SawTooth");
-  };
+  }; */
 
   addAndMakeVisible(noDistortionButton);
   addAndMakeVisible(tripleExponentialSmoothingButton);
   addAndMakeVisible(customDistortionEquationButton);
 
+  noDistortionAttachment.reset(
+      new ButtonAttachment(valueTreeState, "noDistortion", noDistortionButton));
+  tripleExponentialAttachment.reset(
+      new ButtonAttachment(valueTreeState, "tripleExponentialDistortion", tripleExponentialSmoothingButton));
+  customDistortionEquationAttachment.reset(
+      new ButtonAttachment(valueTreeState, "customDistortion", customDistortionEquationButton));
+
   noDistortionButton.setRadioGroupId(101);
   tripleExponentialSmoothingButton.setRadioGroupId(101);
   customDistortionEquationButton.setRadioGroupId(101);
 
-  noDistortionButton.onClick = [this] {
+  /* noDistortionButton.onClick = [this] {
     updateToggleState(&noDistortionButton, "No Distortion");
   };
   tripleExponentialSmoothingButton.onClick = [this] {
-    updateToggleState(&tripleExponentialSmoothingButton, "Triple Smoothing Distortion");
+    updateToggleState(&tripleExponentialSmoothingButton,
+                      "Triple Smoothing Distortion");
   };
   customDistortionEquationButton.onClick = [this] {
     updateToggleState(&customDistortionEquationButton, "Custom Distortion");
-  };
+  }; */
 
   addAndMakeVisible(equationInput);
   equationInput.onReturnKey = [this] { onReturnPressed(&equationInput); };
 
-  // addAndMakeVisible(sawToothIncrementSlider);
-  //  sawToothIncrementSlider.setSliderStyle(
-  //      juce::Slider::SliderStyle::LinearBarVertical);
   sawToothIncrementSlider.setRange(0.0, 0.0001);
   sawToothIncrementSlider.setValue(0);
   sawToothIncrementSlider.addListener(this);
 
   addAndMakeVisible(gainSlider);
-  //  gainSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBarVertical);
-  gainSlider.setRange(-40.0, 80);
-  gainSlider.setValue(1);
-  gainSlider.addListener(this);
-
+  addAndMakeVisible(postGainSlider);
   addAndMakeVisible(clipSlider);
-  //  clipSlider.setSliderStyle(juce::Slider::SliderStyle::LinearBarVertical);
-  clipSlider.setRange(-1, 1);
-  clipSlider.setValue(1);
-  clipSlider.addListener(this);
+
+  preGainAttachment.reset(
+      new SliderAttachment(valueTreeState, "preGain", gainSlider));
+  postGainAttachment.reset(
+      new SliderAttachment(valueTreeState, "postGain", postGainSlider));
+  clipAttachment.reset(
+      new SliderAttachment(valueTreeState, "clipValue", clipSlider));
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
@@ -100,40 +114,12 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
 void AudioPluginAudioProcessorEditor::updateToggleState(juce::Button *button,
                                                         juce::String name) {
-  auto state = button->getToggleState();
-  juce::String stateString = state ? "ON" : "OFF";
 
-  if (button == &SawToothClippingButton) {
-    audioProcessor.enableSawToothClipping = state;
-  }
-
-  if (button == &SquareClippingButton) {
-    audioProcessor.enableSquareClipping = state;
-  }
-
-  if (button == &tripleExponentialSmoothingButton) {
-    audioProcessor.enableTripleExponentialDistortion = state;
-  }
-
-  if (button == &customDistortionEquationButton) {
-    audioProcessor.enableCustomDistortionEquation = state;
-  }
-
-  juce::Logger::outputDebugString(name + " Button changed to " + stateString);
+  
 }
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged(juce::Slider *slider) {
-  if (slider == &gainSlider) {
-    audioProcessor.rawVolume = pow(10, gainSlider.getValue() / 20);
-  }
-
-  if (slider == &clipSlider) {
-    audioProcessor.clipThreshold = clipSlider.getValue();
-  }
-
-  if (slider == &sawToothIncrementSlider) {
-    audioProcessor.currentSawToothStepIncrement = (float)clipSlider.getValue();
-  }
+ 
 }
 
 void AudioPluginAudioProcessorEditor::onReturnPressed(
@@ -153,10 +139,11 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   gainSlider.setBounds(90, 330, getWidth() - 180, 20);
   clipSlider.setBounds(90, 350, getWidth() - 180, 20);
-  sawToothIncrementSlider.setBounds(90, 370, getWidth() - 180, 20);
+  postGainSlider.setBounds(90, 370, getWidth() - 180, 20);
 
   gainSliderLabel.setBounds(55, 330, 40, 20);
   clipSliderLabel.setBounds(55, 350, 40, 20);
+  postGainSliderLabel.setBounds(55, 370, 40, 20);
 
   noClippingButton.setBounds(90, 100, 80, 30);
   SquareClippingButton.setBounds(90, 130, 80, 30);
