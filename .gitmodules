@@ -3,3 +3,6 @@
 	url = https://github.com/beltoforion/muparser
 
 
+[submodule "modules/JUCE"]
+	path = modules/JUCE
+	url = https://github.com/juce-framework/JUCE.git
