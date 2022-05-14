@@ -1,7 +1,7 @@
 #pragma once
 
 #include "PluginProcessor.h"
-#include "modules/JUCE/modules/juce_opengl/juce_opengl.h"
+#include "../modules/JUCE/modules/juce_opengl/juce_opengl.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor,

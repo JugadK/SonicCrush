@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "modules/muparser/include/muParser.h"
+#include "../modules/muparser/include/muParser.h"
 
 //==============================================================================
 class AudioPluginAudioProcessor : public juce::AudioProcessor {
