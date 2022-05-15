@@ -1,7 +1,10 @@
 #include "PluginProcessor.h"
+#include "../modules/muparser/include/muParser.h"
 #include "PluginEditor.h"
-#include "modules/muparser/include/muParser.h"
 #include <string>
+#include "AudioEffects/TripleSmoothingDistortion.cpp"
+#include "AudioEffects/CustomDistortionEquation.h"
+
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -13,7 +16,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-              ),
+              ),              
       parameters(*this, nullptr, juce::Identifier("SonicCrush"),
                  {
                      std::make_unique<juce::AudioParameterFloat>(
@@ -189,7 +192,16 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
     auto *channelData = buffer.getWritePointer(channel);
 
-    try {
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
+
+      channelData[sample] = buffer.getSample(channel, sample);
+
+    }
+  }
+
+  ;
+
+  /*  try {
 
       clipThreshold = *clipParameter;
       preGain = *preGainParameter;
@@ -259,8 +271,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
       }
     } catch (mu::Parser::exception_type &e) {
       std::cout << e.GetMsg() << std::endl;
-    }
-  }
+    } */
 }
 
 //==============================================================================

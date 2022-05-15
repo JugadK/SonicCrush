@@ -11,6 +11,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   // editor's size to whatever you need it to be.
   setSize(600, 440);
 
+
   enum RadioButton {
     ClipButtons = 100,
     DistortionButton = 101,
