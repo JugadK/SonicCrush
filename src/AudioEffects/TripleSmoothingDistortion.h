@@ -7,4 +7,5 @@
 class TripleSmoothingDistortion : public AudioEffect {
     public:
         void processAudio(float &sample);
+        const juce::String name = "TripleSmoothingDistortion";
 };
