@@ -9,4 +9,12 @@ public:
 
   std::string getDistortionEquation();
 
+private:
+  juce::String name = "customDistortionEquation";
+  std::string current_equation;
+  double eulersNumber = 2.71828;
+  double pi = 3.14159;
+  double varX;
+  mu::Parser distortionEquationParser;
+
 };

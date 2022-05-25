@@ -1,15 +1,6 @@
-#include "AudioEffect.hpp"
-#include <cmath>
-#include <iostream>
-#include <iterator>
-#include <ostream>
+#include "TripleSmoothingDistortion.h"
 
-class TripleSmoothingDistortion : public AudioEffect {
-    public:
-        void processAudio(float &sample) {
+void TripleSmoothingDistortion::processAudio(float &sample) {
 
-            sample = std::pow(sample,3);
-
-         
-        }
-};
+  sample = std::pow(sample, 3);
+}

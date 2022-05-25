@@ -1,33 +1,23 @@
+#include "CustomDistortionEquation.h"
 #include "../../modules/muparser/include/muParser.h"
-#include "AudioEffect.hpp"
 #include <string>
 
-class CustomDistortionEquation : public AudioEffect {
-public:
-  void processAudio(float &sample) {
+void CustomDistortionEquation::processAudio(float &sample) {
 
-    varX = sample;
+  varX = sample;
+  distortionEquationParser.DefineVar("x", &varX);
 
-    distortionEquationParser.DefineVar("x", &varX);
+  sample = distortionEquationParser.Eval();
+}
 
-    sample = distortionEquationParser.Eval();
-  }
+void CustomDistortionEquation::setDistortionEquation(std::string equation) {
 
-  void setDistortionEquation(std::string equation) {
+  this->current_equation = equation;
 
-    this->current_equation = equation;
+  distortionEquationParser.SetExpr(equation);
+  distortionEquationParser.DefineVar("e", &eulersNumber);
+  distortionEquationParser.DefineVar("pi", &pi);
+}
 
-    distortionEquationParser.SetExpr(equation);
-    distortionEquationParser.DefineVar("e", &eulersNumber);
-    distortionEquationParser.DefineVar("pi", &pi);
-  }
+std::string CustomDistortionEquation::getDistortionEquation() { return current_equation; }
 
-  std::string getDistortionEquation() { return this->current_equation; }
-
-private:
-  std::string current_equation;
-  double eulersNumber = 2.71828;
-  double pi = 3.14159;
-  double varX;
-  mu::Parser distortionEquationParser;
-};
