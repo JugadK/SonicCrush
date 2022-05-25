@@ -2,11 +2,15 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../modules/muparser/include/muParser.h"
+#include "EffectChain.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor : public juce::AudioProcessor {
+class AudioPluginAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener {
 public:
+  // Default distortion equation
   std::string currentDistortionEquation = "2*x";
+
+  EffectChain effectChain = EffectChain();
 
   float noteOnVel;
   //==============================================================================
@@ -16,6 +20,8 @@ public:
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
   void releaseResources() override;
+  void parameterChanged(const juce::String & parameterID, float newValue) override;
+
   juce::Random random;
 
   std::atomic<float> *preGainParameter = nullptr;
@@ -82,6 +88,7 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState parameters;
+ 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 };

@@ -1,6 +1,7 @@
 #include "PluginProcessor.h"
 #include "../modules/muparser/include/muParser.h"
 #include "PluginEditor.h"
+#include <ostream>
 #include <string>
 #include "AudioEffects/TripleSmoothingDistortion.cpp"
 #include "AudioEffects/CustomDistortionEquation.h"
@@ -64,6 +65,20 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
       parameters.getRawParameterValue("tripleExponentialDistortion");
   customDistortionParameter =
       parameters.getRawParameterValue("customDistortion");
+
+
+parameters.addParameterListener("preGain", this);
+parameters.addParameterListener("postGain", this);
+parameters.addParameterListener("clipValue", this);
+parameters.addParameterListener("noClipping", this);
+ 
+parameters.addParameterListener("sawToothClipping", this);
+parameters.addParameterListener("squareClipping", this);
+parameters.addParameterListener("noDistortion", this);
+
+parameters.addParameterListener("tripleExponentialDistortion", this);
+parameters.addParameterListener("customDistortion", this);
+     
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
@@ -160,6 +175,8 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(
 
 void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                              juce::MidiBuffer &midiMessages) {
+
+
 
   juce::ignoreUnused(midiMessages);
 
@@ -311,6 +328,13 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
       parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 
   juce::ignoreUnused(data, sizeInBytes);
+}
+
+void AudioPluginAudioProcessor::parameterChanged(const juce::String & parameterID, float newValue) {
+  std::cout << parameterID;
+  std::cout << newValue << std::endl;
+
+  
 }
 
 //==============================================================================
