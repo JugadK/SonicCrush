@@ -1,4 +1,4 @@
-#include "../../src/AudioEffects/TripleSmoothingDistortion.cpp"
+#include "../../src/AudioEffects/TripleSmoothingDistortion.hpp"
 #include <gtest/gtest.h>
 
 TEST(TripleSmoothingDistortion, ProcessAudio) {
@@ -14,9 +14,6 @@ TEST(TripleSmoothingDistortion, ProcessAudio) {
 
     tsd.processAudio(sample);
 
-    std::cout << sample;
-
-    std::cout << "fpsjakdfsd";
-
     EXPECT_EQ(floorf(sample * 100) / 100, 0.21f);
 }
+

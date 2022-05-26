@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(SonicCrush VERSION 0.0.1)
 
-
+find_package(CURL)
 add_subdirectory(modules/JUCE)
 add_subdirectory(modules/muparser)
 
@@ -41,10 +41,6 @@ juce_add_plugin(SonicCrush
     PRODUCT_NAME "SonicCrush")  # The name of the final executable, which can differ from the target name
 
 
-target_sources(SonicCrush
-    PUBLIC
-        src/PluginEditor.cpp
-        src/PluginProcessor.cpp)
 
 target_compile_definitions(SonicCrush
     PUBLIC
@@ -53,38 +49,55 @@ target_compile_definitions(SonicCrush
         JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
         JUCE_VST3_CAN_REPLACE_VST2=0)
 
-        enable_testing()
-
-
-add_executable(
-  testing
-  tests/AudioEffects/TripleSmoothingDistortion.cpp
-  tests/AudioEffects/CustomDistortionEquation.cpp
-)
+target_sources(SonicCrush
+        PUBLIC
+            src/AudioEffects/AudioEffect.hpp
+            src/AudioEffects/CustomDistortionEquation.cpp
+            src/AudioEffects/CustomDistortionEquation.hpp
+            src/AudioEffects/TripleSmoothingDistortion.cpp
+            src/AudioEffects/TripleSmoothingDistortion.hpp
+            src/EffectChain.cpp
+            src/PluginEditor.cpp
+            src/PluginProcessor.cpp
+            )
 
 target_link_libraries(SonicCrush
-    PRIVATE
-        gtest_main
-        muparser
-        juce::juce_audio_utils
-        juce::juce_opengl
-        juce::juce_graphics
-    PUBLIC
-        juce::juce_recommended_config_flags
-        juce::juce_recommended_lto_flags
-        juce::juce_recommended_warning_flags
+        PRIVATE
+            gtest_main
+            muparser
+            juce::juce_audio_utils
+            juce::juce_opengl
+            juce::juce_core
+            juce::juce_graphics
+        PUBLIC
+            juce::juce_recommended_config_flags
+            juce::juce_recommended_lto_flags
+            juce::juce_recommended_warning_flags
+            )
+
+enable_testing()
+
+add_executable(
+          testing
+          tests/AudioEffects/TripleSmoothingDistortion.cpp
+          tests/AudioEffects/CustomDistortionEquation.cpp
+          tests/EffectChain.cpp
+          src/AudioEffects/CustomDistortionEquation.cpp
+          src/AudioEffects/CustomDistortionEquation.hpp
+          src/AudioEffects/TripleSmoothingDistortion.cpp
+          src/AudioEffects/TripleSmoothingDistortion.hpp
+          src/EffectChain.cpp
+          modules/
         )
-
-
-
-
-
+        
+    
 target_link_libraries(
-  testing
-  gtest_main
-  muparser
-)
-
+          testing
+          curl
+          gtest_main
+          muparser
+          juce::juce_core        
+        )
 
 include(GoogleTest)
 gtest_discover_tests(testing)

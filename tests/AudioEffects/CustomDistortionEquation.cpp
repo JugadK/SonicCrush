@@ -1,4 +1,4 @@
-#include "../../src/AudioEffects/CustomDistortionEquation.cpp"
+#include "../../src/AudioEffects/CustomDistortionEquation.hpp"
 #include <gtest/gtest.h>
 
 TEST(CustomDistortionEquation, EquationExponential) {
