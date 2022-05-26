@@ -1,4 +1,4 @@
-#include "CustomDistortionEquation.h"
+#include "CustomDistortionEquation.hpp"
 #include "../../modules/muparser/include/muParser.h"
 #include <string>
 
@@ -19,5 +19,11 @@ void CustomDistortionEquation::setDistortionEquation(std::string equation) {
   distortionEquationParser.DefineVar("pi", &pi);
 }
 
-std::string CustomDistortionEquation::getDistortionEquation() { return current_equation; }
+juce::String CustomDistortionEquation::getName() {
+  juce::String name = "customDistortionEquation";
+  return name;
+}
 
+std::string CustomDistortionEquation::getDistortionEquation() {
+  return current_equation;
+}
