@@ -32,7 +32,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(SquareClippingButton);
   addAndMakeVisible(SawToothClippingButton);
   addAndMakeVisible(noClippingButton);
-
+ 
   squareClippingAttachment.reset(
       new ButtonAttachment(valueTreeState, "squareClipping", SquareClippingButton));
   sawToothClippingAttachment.reset(
@@ -51,7 +51,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   noDistortionAttachment.reset(
       new ButtonAttachment(valueTreeState, "noDistortion", noDistortionButton));
   tripleExponentialAttachment.reset(
-      new ButtonAttachment(valueTreeState, "tripleExponentialDistortion", tripleExponentialSmoothingButton));
+      new ButtonAttachment(valueTreeState, "tripleSmoothingDistortion", tripleExponentialSmoothingButton));
   customDistortionEquationAttachment.reset(
       new ButtonAttachment(valueTreeState, "customDistortion", customDistortionEquationButton));
 
@@ -72,6 +72,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
       new SliderAttachment(valueTreeState, "postGain", postGainSlider));
   clipAttachment.reset(
       new SliderAttachment(valueTreeState, "clipValue", clipSlider));
+
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}

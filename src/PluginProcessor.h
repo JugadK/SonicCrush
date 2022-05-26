@@ -2,7 +2,7 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../modules/muparser/include/muParser.h"
-#include "EffectChain.h"
+#include "EffectChain.hpp"
 
 //==============================================================================
 class AudioPluginAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener {
