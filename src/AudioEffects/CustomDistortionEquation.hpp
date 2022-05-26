@@ -1,11 +1,13 @@
+#pragma once
 #include "../../modules/muparser/include/muParser.h"
 #include "AudioEffect.hpp"
 
 class CustomDistortionEquation : public AudioEffect {
 public:
+  CustomDistortionEquation() {};
   void processAudio(float &sample);
   void setDistortionEquation(std::string equation);
-  const juce::String name = "customDistortionEquation";
+  juce::String getName();
   std::string getDistortionEquation();
 
 private:
