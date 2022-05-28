@@ -57,6 +57,7 @@ target_sources(SonicCrush
             src/AudioEffects/TripleSmoothingDistortion.cpp
             src/AudioEffects/TripleSmoothingDistortion.hpp
             src/EffectChain.cpp
+            src/AudioEffectParameter.cpp
             src/PluginEditor.cpp
             src/PluginProcessor.cpp
             )
@@ -79,14 +80,16 @@ enable_testing()
 
 add_executable(
           testing
-          tests/AudioEffects/TripleSmoothingDistortion.cpp
-          tests/AudioEffects/CustomDistortionEquation.cpp
-          tests/EffectChain.cpp
+          tests/unit/AudioEffects/TripleSmoothingDistortion.cpp
+          tests/unit/AudioEffects/CustomDistortionEquation.cpp
+          tests/unit/EffectChain.cpp
           src/AudioEffects/CustomDistortionEquation.cpp
           src/AudioEffects/CustomDistortionEquation.hpp
           src/AudioEffects/TripleSmoothingDistortion.cpp
           src/AudioEffects/TripleSmoothingDistortion.hpp
           src/EffectChain.cpp
+          src/AudioEffectParameter.cpp
+          tests/unit/AudioEffectParameter.cpp
           modules/
         )
         
