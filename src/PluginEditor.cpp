@@ -1,6 +1,7 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 #include <cstddef>
+#include "AudioEffectParameter.hpp"
 
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
@@ -45,18 +46,18 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   SawToothClippingButton.setRadioGroupId(100);
 
   addAndMakeVisible(noDistortionButton);
-  addAndMakeVisible(tripleExponentialSmoothingButton);
+  addAndMakeVisible(tripleSmoothingDistortionButton);
   addAndMakeVisible(customDistortionEquationButton);
 
   noDistortionAttachment.reset(
       new ButtonAttachment(valueTreeState, "noDistortion", noDistortionButton));
-  tripleExponentialAttachment.reset(
-      new ButtonAttachment(valueTreeState, "tripleSmoothingDistortion", tripleExponentialSmoothingButton));
+  tripleSmoothingAttachment.reset(
+      new ButtonAttachment(valueTreeState, "tripleSmoothingDistortion", tripleSmoothingDistortionButton));
   customDistortionEquationAttachment.reset(
       new ButtonAttachment(valueTreeState, "customDistortion", customDistortionEquationButton));
 
   noDistortionButton.setRadioGroupId(101);
-  tripleExponentialSmoothingButton.setRadioGroupId(101);
+  tripleSmoothingDistortionButton.setRadioGroupId(101);
   customDistortionEquationButton.setRadioGroupId(101);
 
   addAndMakeVisible(equationInput);
@@ -94,9 +95,13 @@ void AudioPluginAudioProcessorEditor::onReturnPressed(
 
   if (textEditor == &equationInput) {
 
-    juce::String str = textEditor->getText();
+    std::string str = textEditor->getText().toStdString();
 
-    audioProcessor.currentDistortionEquation = str.toStdString();
+    juce::String eqParameter = "p_customDistortion_equationName";
+
+    audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
+
+    std::cout << "hello";
   }
 }
 
@@ -117,6 +122,6 @@ void AudioPluginAudioProcessorEditor::resized() {
   SawToothClippingButton.setBounds(90, 160, 80, 30);
 
   noDistortionButton.setBounds(300, 100, 80, 30);
-  tripleExponentialSmoothingButton.setBounds(300, 130, 80, 30);
+  tripleSmoothingDistortionButton.setBounds(300, 130, 80, 30);
   customDistortionEquationButton.setBounds(300, 160, 80, 30);
 }

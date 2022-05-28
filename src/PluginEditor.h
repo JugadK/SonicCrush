@@ -29,7 +29,7 @@ private:
       SawToothClippingButton{"SawTooth Clipping"},
       noClippingButton{"Disable Clipping"};
 
-  juce::ToggleButton tripleExponentialSmoothingButton{
+  juce::ToggleButton tripleSmoothingDistortionButton{
       "Triple Exponential Class"};
 
   juce::ToggleButton customDistortionEquationButton{
@@ -58,7 +58,7 @@ private:
   std::unique_ptr<SliderAttachment> clipAttachment;
 
   std::unique_ptr<ButtonAttachment> noDistortionAttachment;
-  std::unique_ptr<ButtonAttachment> tripleExponentialAttachment;
+  std::unique_ptr<ButtonAttachment> tripleSmoothingAttachment;
   std::unique_ptr<ButtonAttachment> customDistortionEquationAttachment;
 
   std::unique_ptr<ButtonAttachment> squareClippingAttachment;
