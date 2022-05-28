@@ -8,8 +8,11 @@
 
 class TripleSmoothingDistortion : public AudioEffect {
     public:
-        TripleSmoothingDistortion() {};
+        TripleSmoothingDistortion();
+        ~TripleSmoothingDistortion();
         static std::unique_ptr<TripleSmoothingDistortion> create();
         void processAudio(float &sample);
         juce::String getName();
+        void changeParameter(AudioEffectParameter effectParameter);
+        
 };
