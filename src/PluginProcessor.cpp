@@ -35,7 +35,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                          "Sawtooth Clipping", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
-                         "tripleExponentialDistortion",   // parameterID
+                         "tripleSmoothingDistortion",   // parameterID
                          "Triple Exponential Distortion", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
@@ -61,8 +61,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
       parameters.getRawParameterValue("sawToothClipping");
   squareClippingParameter = parameters.getRawParameterValue("squareClipping");
   noDistortionParameter = parameters.getRawParameterValue("noDistortion");
-  tripleExponentialParameter =
-      parameters.getRawParameterValue("tripleExponentialDistortion");
+  tripleSmoothingParameter =
+      parameters.getRawParameterValue("tripleSmoothingDistortion");
   customDistortionParameter =
       parameters.getRawParameterValue("customDistortion");
 
@@ -76,7 +76,7 @@ parameters.addParameterListener("sawToothClipping", this);
 parameters.addParameterListener("squareClipping", this);
 parameters.addParameterListener("noDistortion", this);
 
-parameters.addParameterListener("tripleExponentialDistortion", this);
+parameters.addParameterListener("tripleSmoothingDistortion", this);
 parameters.addParameterListener("customDistortion", this);
      
 }
@@ -256,10 +256,15 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
 
 void AudioPluginAudioProcessor::parameterChanged(const juce::String & parameterID, float newValue) {
 
-  if(newValue == 0) {
+  std::cout << parameterID << std::endl;
+
+  if(parameterID.substring(0,2) == "p_") {
+    
+
+  } else if(newValue == 0) {
     effectChain.removeEffect(parameterID);
   } else {
-    effectChain.addEffect(parameterID, newValue);
+    effectChain.addEffect(parameterID);
   }
 }
 

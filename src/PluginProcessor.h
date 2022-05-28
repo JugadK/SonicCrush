@@ -33,7 +33,7 @@ public:
   std::atomic<float> *sawToothClippingParameter = nullptr;
 
   std::atomic<float> *noDistortionParameter = nullptr;
-  std::atomic<float> *tripleExponentialParameter = nullptr;
+  std::atomic<float> *tripleSmoothingParameter = nullptr;
   std::atomic<float> *customDistortionParameter = nullptr;
 
   double preGain;
@@ -43,7 +43,7 @@ public:
   bool enableSquareClipping = false;
   bool enableSawToothClipping = false;
   bool noDistortion = true;
-  bool enableTripleExponentialDistortion = false;
+  bool enabletripleSmoothingDistortion = false;
   bool enableCustomDistortionEquation = false;
 
   double eulersNumber = 2.71828;
