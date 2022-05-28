@@ -4,6 +4,7 @@
 #include "AudioEffects/TripleSmoothingDistortion.hpp"
 #include <functional>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -16,8 +17,6 @@ effects vector
 using a vector allows us to easily swap our audioeffects and change order
 */
 
-
-
 template <typename T>
 std::unique_ptr<AudioEffect> createAudioEffectFromParameter() {
   return std::make_unique<T>();
@@ -27,32 +26,52 @@ EffectChain::EffectChain() {
   valueMap = {
       {juce::String("tripleSmoothingDistortion"),
        createAudioEffectFromParameter<TripleSmoothingDistortion>},
-       {juce::String("customDistortionEquation"),
-       createAudioEffectFromParameter<CustomDistortionEquation>}
+       {juce::String("customDistortion"),
+       createAudioEffectFromParameter<CustomDistortionEquation>},
+       //{juce::String("squareClipping"),
+       //createAudioEffectFromParameter<squareClipping>},
   };
 }
 
 void EffectChain::processSample(float &sample) {
+
   for (u_long i = 0; i < effects.size(); i++) {
     effects[i]->processAudio(sample);
   }
 }
 
-void EffectChain::addEffect(const juce::String &parameterId, float &value) {
+void EffectChain::addEffect(const juce::String &parameterId) {
 
   juce::String str = parameterId;
   std::cout << parameterId << std::endl;
   if (valueMap.count(parameterId)) {
     effects.push_back(valueMap[parameterId]());
-    std::cout << "hello";
   }
 }
 
 void EffectChain::removeEffect(const juce::String &parameterId) {
 
+  int index = getEffectIndex(parameterId);
+
+  if(index != -1) {
+    effects.erase(effects.begin() + index);
+  }
+}
+
+int EffectChain::getEffectIndex(const juce::String &parameterId) {
+  
   for (u_long i = 0; i < effects.size(); i++) {
     if (effects[i]->getName() == parameterId) {
-      effects.erase(effects.begin() + (int)i);
+      return i;
     }
+  }
+  return -1;
+}
+
+void EffectChain::addEffectParameter(AudioEffectParameter audioEffectParameter) {
+
+  int index = getEffectIndex(juce::String("customDistortion"));
+  if(index != -1) {
+    effects[index]->changeParameter(audioEffectParameter);
   }
 }

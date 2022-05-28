@@ -11,9 +11,12 @@ processSample method which will iterate over all our effects in our effects vect
 class EffectChain {
     public:
         EffectChain();
+        EffectChain(std::unordered_map<juce::String, std::function<std::unique_ptr<AudioEffect>()>>);
         void processSample(float& sample);
-        void addEffect(const juce::String & parameterId, float& value);
+        void addEffect(const juce::String & parameterId);
         void removeEffect(const juce::String & parameterId);
+        int getEffectIndex(const juce::String & parameterId);
+        void addEffectParameter(AudioEffectParameter audioEffectParameter);
 
     private:
         std::vector<std::unique_ptr<AudioEffect>> effects;
