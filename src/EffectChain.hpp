@@ -12,13 +12,13 @@ class EffectChain {
     public:
         EffectChain();
         void processSample(float& sample);
-        void addEffect(const juce::String & parameterId);
+        void addEffect(const juce::String & parameterId, juce::AudioProcessorValueTreeState& vts);
         void removeEffect(const juce::String & parameterId);
         int getEffectIndex(const juce::String & parameterId);
         void addEffectParameter(AudioEffectParameter audioEffectParameter);
 
     private:
         std::vector<std::unique_ptr<AudioEffect>> effects;
-        std::unordered_map<juce::String, std::function<std::unique_ptr<AudioEffect>()>> valueMap;
+        std::unordered_map<juce::String, std::function<std::unique_ptr<AudioEffect>(juce::AudioProcessorValueTreeState& vts)>> valueMap;
         
 };

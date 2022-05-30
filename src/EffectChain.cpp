@@ -1,6 +1,7 @@
 #include "EffectChain.hpp"
 #include "AudioEffects/AudioEffect.hpp"
 #include "AudioEffects/CustomDistortionEquation.hpp"
+#include "AudioEffects/SquareClipping.hpp"
 #include "AudioEffects/TripleSmoothingDistortion.hpp"
 #include <functional>
 #include <memory>
@@ -18,18 +19,19 @@ using a vector allows us to easily swap our audioeffects and change order
 */
 
 template <typename T>
-std::unique_ptr<AudioEffect> createAudioEffectFromParameter() {
-  return std::make_unique<T>();
+std::unique_ptr<AudioEffect>
+createAudioEffectFromParameter(juce::AudioProcessorValueTreeState &vts) {
+  return std::make_unique<T>(vts);
 }
 
 EffectChain::EffectChain() {
   valueMap = {
       {juce::String("tripleSmoothingDistortion"),
        createAudioEffectFromParameter<TripleSmoothingDistortion>},
-       {juce::String("customDistortion"),
+      {juce::String("customDistortion"),
        createAudioEffectFromParameter<CustomDistortionEquation>},
-       //{juce::String("squareClipping"),
-       //createAudioEffectFromParameter<squareClipping>},
+      {juce::String("squareClipping"),
+       createAudioEffectFromParameter<SquareClipping>},
   };
 }
 
@@ -40,12 +42,13 @@ void EffectChain::processSample(float &sample) {
   }
 }
 
-void EffectChain::addEffect(const juce::String &parameterId) {
+void EffectChain::addEffect(const juce::String &parameterId,
+                            juce::AudioProcessorValueTreeState &vts) {
 
   juce::String str = parameterId;
   std::cout << parameterId << std::endl;
   if (valueMap.count(parameterId)) {
-    effects.push_back(valueMap[parameterId]());
+    effects.push_back(valueMap[parameterId](vts));
   }
 }
 
@@ -53,13 +56,13 @@ void EffectChain::removeEffect(const juce::String &parameterId) {
 
   int index = getEffectIndex(parameterId);
 
-  if(index != -1) {
+  if (index != -1) {
     effects.erase(effects.begin() + index);
   }
 }
 
 int EffectChain::getEffectIndex(const juce::String &parameterId) {
-  
+
   for (u_long i = 0; i < effects.size(); i++) {
     if (effects[i]->getName() == parameterId) {
       return i;
@@ -68,10 +71,12 @@ int EffectChain::getEffectIndex(const juce::String &parameterId) {
   return -1;
 }
 
-void EffectChain::addEffectParameter(AudioEffectParameter audioEffectParameter) {
+void EffectChain::addEffectParameter(
+    AudioEffectParameter audioEffectParameter) {
 
-  int index = getEffectIndex(juce::String("customDistortion"));
-  if(index != -1) {
+  int index = getEffectIndex(audioEffectParameter.getAudioEffectName());
+
+  if (index != -1) {
     effects[index]->changeParameter(audioEffectParameter);
   }
 }
