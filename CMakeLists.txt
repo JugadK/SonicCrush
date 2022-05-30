@@ -56,6 +56,7 @@ target_sources(SonicCrush
             src/AudioEffects/CustomDistortionEquation.hpp
             src/AudioEffects/TripleSmoothingDistortion.cpp
             src/AudioEffects/TripleSmoothingDistortion.hpp
+            src/AudioEffects/SquareClipping.cpp
             src/EffectChain.cpp
             src/AudioEffectParameter.cpp
             src/PluginEditor.cpp
@@ -79,28 +80,44 @@ target_link_libraries(SonicCrush
 enable_testing()
 
 add_executable(
-          testing
+          SonicCrush_Testing
           tests/unit/AudioEffects/TripleSmoothingDistortion.cpp
           tests/unit/AudioEffects/CustomDistortionEquation.cpp
-          tests/unit/EffectChain.cpp
-          src/AudioEffects/CustomDistortionEquation.cpp
-          src/AudioEffects/CustomDistortionEquation.hpp
-          src/AudioEffects/TripleSmoothingDistortion.cpp
-          src/AudioEffects/TripleSmoothingDistortion.hpp
-          src/EffectChain.cpp
-          src/AudioEffectParameter.cpp
+          tests/unit/AudioEffects/SquareClipping.cpp
           tests/unit/AudioEffectParameter.cpp
+          tests/integration/EffectChain.cpp
+          tests/mocks/MockAudioProcessor.hpp
+          src/AudioEffects/CustomDistortionEquation.cpp
+          src/AudioEffects/TripleSmoothingDistortion.cpp
+          src/AudioEffects/SquareClipping.cpp
+          src/EffectChain.cpp
+          src/PluginProcessor.cpp
+          src/AudioEffectParameter.cpp
+          src/PluginEditor.cpp
           modules/
         )
-        
+
+
+target_compile_definitions(SonicCrush_Testing
+PUBLIC
+    # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+    JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+    JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+    JUCE_VST3_CAN_REPLACE_VST2=0)
+
+
+target_include_directories(SonicCrush_Testing PRIVATE ${GTK_INCLUDE_DIR})        
     
 target_link_libraries(
-          testing
+          SonicCrush_Testing
           curl
           gtest_main
+          gmock
           muparser
-          juce::juce_core        
+          juce::juce_opengl
+          juce::juce_core
+          juce::juce_audio_utils
         )
 
 include(GoogleTest)
-gtest_discover_tests(testing)
+gtest_discover_tests(SonicCrush_Testing)
