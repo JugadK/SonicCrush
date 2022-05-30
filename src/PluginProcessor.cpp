@@ -25,7 +25,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      std::make_unique<juce::AudioParameterFloat>(
                          "postGain", "postGain", -40.0f, 80.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
-                         "clipValue", "clipValue", -1.0f, 1.0f, 1.0f),
+                         "p_squareClipping_clipValue", "p_squareClipping_clipValue", -1.0f, 1.0f, 1.0f),
                      std::make_unique<juce::AudioParameterBool>(
                          "squareClipping",  // parameterID
                          "Square Clipping", // parameter name
@@ -69,7 +69,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
 parameters.addParameterListener("preGain", this);
 parameters.addParameterListener("postGain", this);
-parameters.addParameterListener("clipValue", this);
+parameters.addParameterListener("p_squareClipping_clipValue", this);
 parameters.addParameterListener("noClipping", this);
  
 parameters.addParameterListener("sawToothClipping", this);
@@ -209,7 +209,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
       channelData[sample] = buffer.getSample(channel, sample);
 
-      effectChain.processSample(channelData[sample]);
+      effectChain.processSample(channelData[sample]);    
 
     }
   }
@@ -256,15 +256,15 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
 
 void AudioPluginAudioProcessor::parameterChanged(const juce::String & parameterID, float newValue) {
 
-  std::cout << parameterID << std::endl;
 
   if(parameterID.substring(0,2) == "p_") {
-    
+    effectChain.addEffectParameter(AudioEffectParameter(parameterID, newValue));
+
 
   } else if(newValue == 0) {
     effectChain.removeEffect(parameterID);
   } else {
-    effectChain.addEffect(parameterID);
+    effectChain.addEffect(parameterID,parameters);
   }
 }
 

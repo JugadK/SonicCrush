@@ -4,16 +4,16 @@
 
 class CustomDistortionEquation : public AudioEffect {
 public:
-  CustomDistortionEquation();
+  CustomDistortionEquation(juce::AudioProcessorValueTreeState& vts);
   ~CustomDistortionEquation();
   void processAudio(float &sample);
   void setDistortionEquation(std::string equation);
   juce::String getName();
   std::string getDistortionEquation();
   void changeParameter(AudioEffectParameter effectParameter);
+  static std::string current_equation;
 
 private:
-  std::string current_equation;
   double eulersNumber = 2.71828;
   double pi = 3.14159;
   double varX;

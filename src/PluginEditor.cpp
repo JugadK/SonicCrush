@@ -1,4 +1,5 @@
 #include "PluginEditor.h"
+#include "AudioEffects/CustomDistortionEquation.hpp"
 #include "PluginProcessor.h"
 #include <cstddef>
 #include "AudioEffectParameter.hpp"
@@ -72,7 +73,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   postGainAttachment.reset(
       new SliderAttachment(valueTreeState, "postGain", postGainSlider));
   clipAttachment.reset(
-      new SliderAttachment(valueTreeState, "clipValue", clipSlider));
+      new SliderAttachment(valueTreeState, "p_squareClipping_clipValue", clipSlider));
 
 }
 
@@ -97,9 +98,13 @@ void AudioPluginAudioProcessorEditor::onReturnPressed(
 
     std::string str = textEditor->getText().toStdString();
 
-    juce::String eqParameter = "p_customDistortion_equationName";
 
-    audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
+    // This is a hack due to the equation not being stored in valuetree
+    // TODO add customequation into valuetree
+    //CustomDistortionEquation::current_equation = str;
+
+    //juce::String eqParameter = "p_customDistortion_equationName";
+    //audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
 
     std::cout << "hello";
   }

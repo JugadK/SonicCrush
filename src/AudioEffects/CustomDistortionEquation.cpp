@@ -3,8 +3,14 @@
 #include <iterator>
 #include <string>
 
-CustomDistortionEquation::CustomDistortionEquation() {
-  current_equation = "2*x";
+
+// Static equation is a hack, in the future the equation string should be added to
+// PluginProcessors value tree
+std::string CustomDistortionEquation::current_equation = "2*x";
+
+CustomDistortionEquation::CustomDistortionEquation(
+    juce::AudioProcessorValueTreeState &vts) {
+
   distortionEquationParser.SetExpr(current_equation);
   distortionEquationParser.DefineVar("x", &varX);
 }
@@ -16,10 +22,9 @@ void CustomDistortionEquation::processAudio(float &sample) {
   try {
 
     varX = (double)sample;
-   
+
     sample = (float)distortionEquationParser.Eval();
 
-    // std::cout << sample;
   } catch (mu::Parser::exception_type &e) {
     std::cout << "error";
     std::cout << e.GetMsg() << std::endl;
@@ -28,9 +33,9 @@ void CustomDistortionEquation::processAudio(float &sample) {
 
 void CustomDistortionEquation::setDistortionEquation(std::string equation) {
 
-  this->current_equation = equation;
+  CustomDistortionEquation::current_equation = equation;
 
-  distortionEquationParser.SetExpr(equation);
+  distortionEquationParser.SetExpr(current_equation);
   distortionEquationParser.DefineVar("x", &varX);
   distortionEquationParser.DefineVar("e", &eulersNumber);
   distortionEquationParser.DefineVar("pi", &pi);
@@ -45,8 +50,9 @@ std::string CustomDistortionEquation::getDistortionEquation() {
   return current_equation;
 }
 
-void CustomDistortionEquation::changeParameter(AudioEffectParameter effectParameter) {
-  if(effectParameter.getParameterName() == juce::String("equationName")) {
+void CustomDistortionEquation::changeParameter(
+    AudioEffectParameter effectParameter) {
+  if (effectParameter.getParameterName() == juce::String("equationName")) {
     this->setDistortionEquation(effectParameter.getStringData());
   }
 }
