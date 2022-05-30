@@ -2,7 +2,8 @@
 #include <memory>
 #include <ostream>
 
-TripleSmoothingDistortion::TripleSmoothingDistortion() {}
+TripleSmoothingDistortion::TripleSmoothingDistortion(
+    juce::AudioProcessorValueTreeState &vts) {}
 
 TripleSmoothingDistortion::~TripleSmoothingDistortion() {}
 
@@ -17,4 +18,5 @@ juce::String TripleSmoothingDistortion::getName() {
   return name;
 }
 
-void TripleSmoothingDistortion::changeParameter(AudioEffectParameter effectParameter) {}
+void TripleSmoothingDistortion::changeParameter(
+    AudioEffectParameter effectParameter) {}

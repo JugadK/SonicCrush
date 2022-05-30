@@ -1,19 +1,33 @@
 #include "../../../src/AudioEffects/TripleSmoothingDistortion.hpp"
+#include "../../../src/PluginProcessor.h"
+#include <cstdlib>
 #include <gtest/gtest.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <memory>
+#include <new>
+#include "../../mocks/MockAudioProcessor.hpp"
 
 TEST(TripleSmoothingDistortion, ProcessAudio) {
-    TripleSmoothingDistortion tsd = TripleSmoothingDistortion();
 
-    float sample = 0.0f;
+  juce::ScopedJuceInitialiser_GUI initializeJuce;
 
-    tsd.processAudio(sample);
+  MockAudioProcessor mAudioProcessor = MockAudioProcessor();
 
-    EXPECT_EQ(0.0f, sample);
+  juce::AudioProcessorValueTreeState vts = juce::AudioProcessorValueTreeState(
+      mAudioProcessor, nullptr);
 
-    sample = 0.6f;
+  TripleSmoothingDistortion tsd = TripleSmoothingDistortion(vts);
 
-    tsd.processAudio(sample);
+  float sample = 0.0f;
+  tsd.processAudio(sample);
 
-    EXPECT_EQ(floorf(sample * 100) / 100, 0.21f);
+  EXPECT_EQ(0.0f, sample);
+
+  sample = 0.6f;
+  tsd.processAudio(sample);
+
+  EXPECT_EQ(floorf(sample * 100) / 100, 0.21f);
+
+
+
 }
-
