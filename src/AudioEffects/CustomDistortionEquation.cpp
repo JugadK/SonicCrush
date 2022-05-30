@@ -26,7 +26,6 @@ void CustomDistortionEquation::processAudio(float &sample) {
     sample = (float)distortionEquationParser.Eval();
 
   } catch (mu::Parser::exception_type &e) {
-    std::cout << "error";
     std::cout << e.GetMsg() << std::endl;
   }
 }
