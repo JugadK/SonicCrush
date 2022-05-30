@@ -24,7 +24,7 @@ AudioEffectParameter::AudioEffectParameter(juce::String parameterString) {
 }
 
 AudioEffectParameter::AudioEffectParameter(juce::String parameterString,
-                                           float &value)
+                                           float value)
     : AudioEffectParameter(parameterString) {
 
   this->floatValue = value;
@@ -38,18 +38,21 @@ AudioEffectParameter::AudioEffectParameter(juce::String parameterString,
 }
 
 juce::String AudioEffectParameter::getAudioEffectName() {
-
   return audioEffectName;
 }
 
 juce::String AudioEffectParameter::getParameterName() { return parameterName; }
 
-std::string AudioEffectParameter::getStringData() {
+void AudioEffectParameter::setStringData(std::string& newData) {
+  stringValue = newData;
+}
 
+std::string AudioEffectParameter::getStringData() {
   return std::get<std::string>(stringValue);
 }
 
-float AudioEffectParameter::getFloatData() {
+void AudioEffectParameter::setFloatData(float newData) { floatValue = newData; }
 
+float AudioEffectParameter::getFloatData() {
   return std::get<float>(floatValue);
 }
