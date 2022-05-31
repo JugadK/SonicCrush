@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(googletest)
 
 
 juce_add_plugin(SonicCrush
-    VERSION 0.0.1
+    VERSION 0.0.2
     COMPANY_NAME BasedInc.
     PLUGIN_MANUFACTURER_CODE BASE
     PLUGIN_CODE basd
