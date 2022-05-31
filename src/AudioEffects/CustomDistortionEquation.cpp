@@ -3,16 +3,14 @@
 #include <iterator>
 #include <string>
 
-
-// Static equation is a hack, in the future the equation string should be added to
-// PluginProcessors value tree
+// Static equation is a hack, in the future the equation string should be added
+// to PluginProcessors value tree
 std::string CustomDistortionEquation::current_equation = "2*x";
 
 CustomDistortionEquation::CustomDistortionEquation(
     juce::AudioProcessorValueTreeState &vts) {
 
-  distortionEquationParser.SetExpr(current_equation);
-  distortionEquationParser.DefineVar("x", &varX);
+  setDistortionEquation(current_equation);
 }
 
 CustomDistortionEquation::~CustomDistortionEquation() {}

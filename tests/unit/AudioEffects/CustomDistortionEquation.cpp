@@ -4,6 +4,36 @@
 
 #include "../../mocks/MockAudioProcessor.hpp"
 
+
+
+TEST(CustomDistortionEquation, Multiplication) {
+
+  juce::ScopedJuceInitialiser_GUI initializeJuce;
+
+  MockAudioProcessor mAudioProcessor = MockAudioProcessor();
+
+  juce::AudioProcessorValueTreeState vts = juce::AudioProcessorValueTreeState(
+      mAudioProcessor, nullptr, juce::Identifier("SonicCrush"),
+      {std::make_unique<juce::AudioParameterFloat>("preGain", "preGain", -40.0f,
+                                                   80.0f, 1.0f)});
+
+  CustomDistortionEquation cde = CustomDistortionEquation(vts);
+
+  cde.setDistortionEquation("2*x");
+
+  EXPECT_TRUE(cde.getDistortionEquation() == "2*x");
+
+  float sample = 0.0f;
+  cde.processAudio(sample);
+
+  EXPECT_TRUE(sample == 0.0f);
+
+  sample = 0.4f;
+  cde.processAudio(sample);
+
+  EXPECT_EQ(floorf(sample * 100) / 100, 0.8f) << sample;
+}
+
 TEST(CustomDistortionEquation, EquationExponential) {
 
   juce::ScopedJuceInitialiser_GUI initializeJuce;
