@@ -20,9 +20,9 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
       parameters(*this, nullptr, juce::Identifier("SonicCrush"),
                  {
                      std::make_unique<juce::AudioParameterFloat>(
-                         "preGain", "preGain", -40.0f, 80.0f, 1.0f),
+                         "preGain", "preGain", -40.0f, 40.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
-                         "postGain", "postGain", -40.0f, 80.0f, 1.0f),
+                         "postGain", "postGain", -40.0f, 40.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
                          "p_squareClipping_clipValue",
                          "p_squareClipping_clipValue", -1.0f, 1.0f, 1.0f),
@@ -206,9 +206,13 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
     for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-      channelData[sample] = buffer.getSample(channel, sample);
+      channelData[sample] =
+          buffer.getSample(channel, sample) * pow(10, *preGainParameter / 20);
 
       effectChain.processSample(channelData[sample]);
+
+      channelData[sample] =
+          channelData[sample] * pow(10, *postGainParameter / 20);
     }
   }
 }
@@ -260,7 +264,9 @@ void AudioPluginAudioProcessor::parameterChanged(
 
   } else if (newValue == 0) {
     effectChain.removeEffect(stringToAudioEffect(parameterID));
-  } else {
+  } else if(isValidAudioEffectString(parameterID)) {
+
+    std::cout << stringToAudioEffect(parameterID) << std::endl;
     effectChain.addEffect(stringToAudioEffect(parameterID), parameters);
   }
 }
