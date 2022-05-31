@@ -23,3 +23,4 @@ char const* const effects_str[] = {
 
 AudioEffects stringToAudioEffect(juce::String);
 const char *audioEffectToString(AudioEffects audioEffect);
+bool isValidAudioEffectString(juce::String audioEffectString);

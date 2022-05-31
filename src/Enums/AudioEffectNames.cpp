@@ -12,3 +12,7 @@ const char *audioEffectToString(AudioEffects audioEffect) {
 }
 
 AudioEffects stringToAudioEffect(juce::String audioEffectString) { return audioEffectMap[audioEffectString]; }
+
+bool isValidAudioEffectString(juce::String audioEffectString) {
+  return audioEffectMap.count(audioEffectString);
+}
