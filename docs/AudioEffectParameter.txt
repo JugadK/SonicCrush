@@ -1,0 +1,13 @@
+Audio Effect Parameter is used so we can communicate the string parameters stored in the valueTree 
+to the actual AudioEffect classes that manipulate the examples. Since they are strings one way we can do this is 
+by storing the strings in a way that can be decoded into a C++ Object (This object being AudioEffectParameter)
+
+p_customDistortion_equationName
+
+p_, or the first two index of the string represent that it is a parameter 
+customDistortion means the parameter belongs to the customDistortion effect (exact keywords can be found in the valueMap in EffectChain)
+equationName is the name of the parameter
+
+by passing the string into the AudioEffectParameter constructor along with a value (which is implemented using std::variant to be extendable), 
+it will create an AudioEffectParameter, this can then be passed into EffectChain.addEffectParameter which will find the correct audioeffect and pass the parameter to it.
+

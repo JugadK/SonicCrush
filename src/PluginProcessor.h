@@ -2,11 +2,15 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "../modules/muparser/include/muParser.h"
+#include "EffectChain.hpp"
 
 //==============================================================================
-class AudioPluginAudioProcessor : public juce::AudioProcessor {
+class AudioPluginAudioProcessor : public juce::AudioProcessor, public juce::AudioProcessorValueTreeState::Listener {
 public:
+  // Default distortion equation
   std::string currentDistortionEquation = "2*x";
+
+  EffectChain effectChain = EffectChain();
 
   float noteOnVel;
   //==============================================================================
@@ -16,6 +20,8 @@ public:
   //==============================================================================
   void prepareToPlay(double sampleRate, int samplesPerBlock) override;
   void releaseResources() override;
+  void parameterChanged(const juce::String & parameterID, float newValue) override;
+
   juce::Random random;
 
   std::atomic<float> *preGainParameter = nullptr;
@@ -27,7 +33,7 @@ public:
   std::atomic<float> *sawToothClippingParameter = nullptr;
 
   std::atomic<float> *noDistortionParameter = nullptr;
-  std::atomic<float> *tripleExponentialParameter = nullptr;
+  std::atomic<float> *tripleSmoothingParameter = nullptr;
   std::atomic<float> *customDistortionParameter = nullptr;
 
   double preGain;
@@ -37,7 +43,7 @@ public:
   bool enableSquareClipping = false;
   bool enableSawToothClipping = false;
   bool noDistortion = true;
-  bool enableTripleExponentialDistortion = false;
+  bool enabletripleSmoothingDistortion = false;
   bool enableCustomDistortionEquation = false;
 
   double eulersNumber = 2.71828;
@@ -82,6 +88,7 @@ public:
 
 private:
   juce::AudioProcessorValueTreeState parameters;
+ 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessor)
 };

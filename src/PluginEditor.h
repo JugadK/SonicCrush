@@ -1,7 +1,8 @@
 #pragma once
 
-#include "PluginProcessor.h"
 #include "../modules/JUCE/modules/juce_opengl/juce_opengl.h"
+#include "PluginProcessor.h"
+
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor : public juce::AudioProcessorEditor,
@@ -29,7 +30,7 @@ private:
       SawToothClippingButton{"SawTooth Clipping"},
       noClippingButton{"Disable Clipping"};
 
-  juce::ToggleButton tripleExponentialSmoothingButton{
+  juce::ToggleButton tripleSmoothingDistortionButton{
       "Triple Exponential Class"};
 
   juce::ToggleButton customDistortionEquationButton{
@@ -39,7 +40,7 @@ private:
   juce::Label gainSliderLabel{"Gain"};
   juce::Label postGainSliderLabel{"Post Gain"};
   juce::Label clipSliderLabel{"Clip Value"};
-  juce::Label sawtoothIncrementSliderLabel;
+  juce::Label sawToothClipSliderLabel{"SawTooth Clip"};
 
   juce::Label distortionLabel;
   juce::Label clipLabel;
@@ -51,20 +52,20 @@ private:
   juce::Slider gainSlider;
   juce::Slider postGainSlider;
   juce::Slider clipSlider;
-  juce::Slider sawToothIncrementSlider;
+  juce::Slider sawToothClipSlider;
 
   std::unique_ptr<SliderAttachment> preGainAttachment;
   std::unique_ptr<SliderAttachment> postGainAttachment;
   std::unique_ptr<SliderAttachment> clipAttachment;
+  std::unique_ptr<SliderAttachment> sawToothClipAttachment;
 
   std::unique_ptr<ButtonAttachment> noDistortionAttachment;
-  std::unique_ptr<ButtonAttachment> tripleExponentialAttachment;
+  std::unique_ptr<ButtonAttachment> tripleSmoothingAttachment;
   std::unique_ptr<ButtonAttachment> customDistortionEquationAttachment;
 
   std::unique_ptr<ButtonAttachment> squareClippingAttachment;
   std::unique_ptr<ButtonAttachment> sawToothClippingAttachment;
   std::unique_ptr<ButtonAttachment> noClippingAttachment;
-
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };

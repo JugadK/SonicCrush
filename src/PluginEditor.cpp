@@ -1,4 +1,6 @@
 #include "PluginEditor.h"
+#include "AudioEffectParameter.hpp"
+#include "AudioEffects/CustomDistortionEquation.hpp"
 #include "PluginProcessor.h"
 #include <cstddef>
 
@@ -19,7 +21,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   addAndMakeVisible(gainSliderLabel);
   addAndMakeVisible(postGainSliderLabel);
   addAndMakeVisible(clipSliderLabel);
-  addAndMakeVisible(sawtoothIncrementSliderLabel);
+  addAndMakeVisible(sawToothClipSliderLabel);
 
   gainSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
   gainSliderLabel.setText("Pre Gain", juce::dontSendNotification);
@@ -27,35 +29,38 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
   postGainSliderLabel.setText("Post Gain", juce::dontSendNotification);
   clipSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
   clipSliderLabel.setText("Clip", juce::dontSendNotification);
+  sawToothClipSliderLabel.setFont(juce::Font(12.0f, juce::Font::bold));
+  sawToothClipSliderLabel.setText("Clip", juce::dontSendNotification);
 
   addAndMakeVisible(SquareClippingButton);
   addAndMakeVisible(SawToothClippingButton);
   addAndMakeVisible(noClippingButton);
 
-  squareClippingAttachment.reset(
-      new ButtonAttachment(valueTreeState, "squareClipping", SquareClippingButton));
-  sawToothClippingAttachment.reset(
-      new ButtonAttachment(valueTreeState, "sawToothClipping", SawToothClippingButton));
+  squareClippingAttachment.reset(new ButtonAttachment(
+      valueTreeState, "squareClipping", SquareClippingButton));
+  sawToothClippingAttachment.reset(new ButtonAttachment(
+      valueTreeState, "sawToothClipping", SawToothClippingButton));
   noClippingAttachment.reset(
-      new ButtonAttachment(valueTreeState, "noClipping", noClippingButton)); 
+      new ButtonAttachment(valueTreeState, "noClipping", noClippingButton));
 
   noClippingButton.setRadioGroupId(100);
   SquareClippingButton.setRadioGroupId(100);
   SawToothClippingButton.setRadioGroupId(100);
 
   addAndMakeVisible(noDistortionButton);
-  addAndMakeVisible(tripleExponentialSmoothingButton);
+  addAndMakeVisible(tripleSmoothingDistortionButton);
   addAndMakeVisible(customDistortionEquationButton);
 
   noDistortionAttachment.reset(
       new ButtonAttachment(valueTreeState, "noDistortion", noDistortionButton));
-  tripleExponentialAttachment.reset(
-      new ButtonAttachment(valueTreeState, "tripleExponentialDistortion", tripleExponentialSmoothingButton));
-  customDistortionEquationAttachment.reset(
-      new ButtonAttachment(valueTreeState, "customDistortion", customDistortionEquationButton));
+  tripleSmoothingAttachment.reset(
+      new ButtonAttachment(valueTreeState, "tripleSmoothingDistortion",
+                           tripleSmoothingDistortionButton));
+  customDistortionEquationAttachment.reset(new ButtonAttachment(
+      valueTreeState, "customDistortion", customDistortionEquationButton));
 
   noDistortionButton.setRadioGroupId(101);
-  tripleExponentialSmoothingButton.setRadioGroupId(101);
+  tripleSmoothingDistortionButton.setRadioGroupId(101);
   customDistortionEquationButton.setRadioGroupId(101);
 
   addAndMakeVisible(equationInput);
@@ -69,8 +74,10 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
       new SliderAttachment(valueTreeState, "preGain", gainSlider));
   postGainAttachment.reset(
       new SliderAttachment(valueTreeState, "postGain", postGainSlider));
-  clipAttachment.reset(
-      new SliderAttachment(valueTreeState, "clipValue", clipSlider));
+  clipAttachment.reset(new SliderAttachment(
+      valueTreeState, "p_squareClipping_clipValue", clipSlider));
+  sawToothClipAttachment.reset(new SliderAttachment(
+      valueTreeState, "p_sawToothClipping_clipValue", clipSlider));
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
@@ -92,9 +99,16 @@ void AudioPluginAudioProcessorEditor::onReturnPressed(
 
   if (textEditor == &equationInput) {
 
-    juce::String str = textEditor->getText();
+    std::string str = textEditor->getText().toStdString();
 
-    audioProcessor.currentDistortionEquation = str.toStdString();
+    // This is a hack due to the equation not being stored in valuetree
+    // TODO add customequation into valuetree
+    CustomDistortionEquation::current_equation = str;
+
+    juce::String eqParameter = "p_customDistortion_equationName";
+    audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
+
+    std::cout << "hello";
   }
 }
 
@@ -115,6 +129,6 @@ void AudioPluginAudioProcessorEditor::resized() {
   SawToothClippingButton.setBounds(90, 160, 80, 30);
 
   noDistortionButton.setBounds(300, 100, 80, 30);
-  tripleExponentialSmoothingButton.setBounds(300, 130, 80, 30);
+  tripleSmoothingDistortionButton.setBounds(300, 130, 80, 30);
   customDistortionEquationButton.setBounds(300, 160, 80, 30);
 }

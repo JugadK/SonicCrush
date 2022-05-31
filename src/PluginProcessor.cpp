@@ -1,6 +1,9 @@
 #include "PluginProcessor.h"
+#include "../modules/muparser/include/muParser.h"
+#include "Enums/AudioEffectNames.hpp"
 #include "PluginEditor.h"
-#include "modules/muparser/include/muParser.h"
+#include <cstdlib>
+#include <ostream>
 #include <string>
 
 //==============================================================================
@@ -17,11 +20,15 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
       parameters(*this, nullptr, juce::Identifier("SonicCrush"),
                  {
                      std::make_unique<juce::AudioParameterFloat>(
-                         "preGain", "preGain", -40.0f, 80.0f, 1.0f),
+                         "preGain", "preGain", -40.0f, 40.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
-                         "postGain", "postGain", -40.0f, 80.0f, 1.0f),
+                         "postGain", "postGain", -40.0f, 40.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
-                         "clipValue", "clipValue", -1.0f, 1.0f, 1.0f),
+                         "p_squareClipping_clipValue",
+                         "p_squareClipping_clipValue", -1.0f, 1.0f, 1.0f),
+                     std::make_unique<juce::AudioParameterFloat>(
+                         "p_sawToothClipping_clipValue",
+                         "p_sawToothClipping_clipValue", -1.0f, 1.0f, 1.0f),
                      std::make_unique<juce::AudioParameterBool>(
                          "squareClipping",  // parameterID
                          "Square Clipping", // parameter name
@@ -31,7 +38,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                          "Sawtooth Clipping", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
-                         "tripleExponentialDistortion",   // parameterID
+                         "tripleSmoothingDistortion",     // parameterID
                          "Triple Exponential Distortion", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
@@ -57,17 +64,30 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
       parameters.getRawParameterValue("sawToothClipping");
   squareClippingParameter = parameters.getRawParameterValue("squareClipping");
   noDistortionParameter = parameters.getRawParameterValue("noDistortion");
-  tripleExponentialParameter =
-      parameters.getRawParameterValue("tripleExponentialDistortion");
+  tripleSmoothingParameter =
+      parameters.getRawParameterValue("tripleSmoothingDistortion");
   customDistortionParameter =
       parameters.getRawParameterValue("customDistortion");
+
+  parameters.addParameterListener("preGain", this);
+  parameters.addParameterListener("postGain", this);
+  parameters.addParameterListener("p_squareClipping_clipValue", this);
+  parameters.addParameterListener("p_sawToothClipping_clipValue", this);
+  parameters.addParameterListener("noClipping", this);
+
+  parameters.addParameterListener("sawToothClipping", this);
+  parameters.addParameterListener("squareClipping", this);
+  parameters.addParameterListener("noDistortion", this);
+
+  parameters.addParameterListener("tripleSmoothingDistortion", this);
+  parameters.addParameterListener("customDistortion", this);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
 
 //==============================================================================
 const juce::String AudioPluginAudioProcessor::getName() const {
-  return JucePlugin_Name;
+  return "SonicCrush";
 }
 
 bool AudioPluginAudioProcessor::acceptsMidi() const {
@@ -180,85 +200,19 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Alternatively, you can process the samples with the channels
   // interleaved by keeping the same state.
 
-  distortionEquationParser.SetExpr(currentDistortionEquation);
-  distortionEquationParser.DefineVar("x", &varX);
-  distortionEquationParser.DefineVar("e", &eulersNumber);
-  distortionEquationParser.DefineVar("pi", &pi);
-
   for (int channel = 0; channel < totalNumInputChannels; ++channel) {
 
     auto *channelData = buffer.getWritePointer(channel);
 
-    try {
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
 
-      clipThreshold = *clipParameter;
-      preGain = *preGainParameter;
-      postGain = *postGainParameter;
+      channelData[sample] =
+          buffer.getSample(channel, sample) * pow(10, *preGainParameter / 20);
 
-      // For Some reason we can only get parameters back as floats, so to use
-      // them as booleans we determine if they are 1 or 0
+      effectChain.processSample(channelData[sample]);
 
-      enableSquareClipping = *squareClippingParameter < 1 ? false : true;
-      enableSawToothClipping = *sawToothClippingParameter < 1 ? false : true;
-
-      enableTripleExponentialDistortion =
-          *tripleExponentialParameter < 1 ? false : true;
-      enableCustomDistortionEquation =
-          *customDistortionParameter < 1 ? false : true;
-
-      if (enableCustomDistortionEquation) {
-      }
-
-      for (int sample = 0; sample < buffer.getNumSamples(); sample++) {
-
-        channelData[sample] =
-            buffer.getSample(channel, sample) * pow(10, *preGainParameter / 20);
-
-        if (enableTripleExponentialDistortion) {
-
-          channelData[sample] = pow(channelData[sample], 3);
-
-        } else if (enableCustomDistortionEquation) {
-
-          varX = channelData[sample];
-
-          channelData[sample] = distortionEquationParser.Eval();
-        }
-
-        if (std::abs(channelData[sample]) > clipThreshold) {
-
-          if (enableSquareClipping) {
-
-            if (channelData[sample] < 0.0f) {
-
-              channelData[sample] = -(clipThreshold);
-
-            } else if (channelData[sample] >= 0.0f) {
-
-              channelData[sample] = clipThreshold;
-            }
-          } else if (enableSawToothClipping) {
-
-            currentSawToothStep =
-                currentSawToothStep + currentSawToothStepIncrement;
-
-            if (channelData[sample] < 0.0f) {
-
-              channelData[sample] = -(clipThreshold) - (currentSawToothStep);
-
-            } else if (channelData[sample] >= 0.0f) {
-
-              channelData[sample] = (clipThreshold) + (currentSawToothStep);
-            }
-          }
-        } else {
-          currentSawToothStep = 0.0f;
-        }
-
-        channelData[sample] = channelData[sample] * pow(10, postGain / 20);
-      }
-    } catch (mu::Parser::exception_type &e) {
-      std::cout << e.GetMsg() << std::endl;
+      channelData[sample] =
+          channelData[sample] * pow(10, *postGainParameter / 20);
     }
   }
 }
@@ -300,6 +254,22 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
       parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
 
   juce::ignoreUnused(data, sizeInBytes);
+}
+
+// TODO3 make this nicer
+void AudioPluginAudioProcessor::parameterChanged(
+    const juce::String &parameterID, float newValue) {
+
+  if (parameterID.substring(0, 2) == "p_") {
+    effectChain.addEffectParameter(AudioEffectParameter(parameterID, newValue));
+
+  } else if (newValue == 0 && isValidAudioEffectString(parameterID)) {
+    effectChain.removeEffect(stringToAudioEffect(parameterID));
+  } else if(isValidAudioEffectString(parameterID)) {
+
+    std::cout << stringToAudioEffect(parameterID) << std::endl;
+    effectChain.addEffect(stringToAudioEffect(parameterID), parameters);
+  }
 }
 
 //==============================================================================
