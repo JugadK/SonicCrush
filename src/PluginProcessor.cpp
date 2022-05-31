@@ -5,8 +5,6 @@
 #include <ostream>
 #include <string>
 
-
-
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     : AudioProcessor(
@@ -17,7 +15,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 #endif
               .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-              ),              
+              ),
       parameters(*this, nullptr, juce::Identifier("SonicCrush"),
                  {
                      std::make_unique<juce::AudioParameterFloat>(
@@ -25,7 +23,11 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      std::make_unique<juce::AudioParameterFloat>(
                          "postGain", "postGain", -40.0f, 80.0f, 1.0f),
                      std::make_unique<juce::AudioParameterFloat>(
-                         "p_squareClipping_clipValue", "p_squareClipping_clipValue", -1.0f, 1.0f, 1.0f),
+                         "p_squareClipping_clipValue",
+                         "p_squareClipping_clipValue", -1.0f, 1.0f, 1.0f),
+                     std::make_unique<juce::AudioParameterFloat>(
+                         "p_sawToothClipping_clipValue",
+                         "p_sawToothClipping_clipValue", -1.0f, 1.0f, 1.0f),
                      std::make_unique<juce::AudioParameterBool>(
                          "squareClipping",  // parameterID
                          "Square Clipping", // parameter name
@@ -35,7 +37,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                          "Sawtooth Clipping", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
-                         "tripleSmoothingDistortion",   // parameterID
+                         "tripleSmoothingDistortion",     // parameterID
                          "Triple Exponential Distortion", // parameter name
                          false),
                      std::make_unique<juce::AudioParameterBool>(
@@ -66,19 +68,18 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
   customDistortionParameter =
       parameters.getRawParameterValue("customDistortion");
 
+  parameters.addParameterListener("preGain", this);
+  parameters.addParameterListener("postGain", this);
+  parameters.addParameterListener("p_squareClipping_clipValue", this);
+  parameters.addParameterListener("p_sawToothClipping_clipValue", this);
+  parameters.addParameterListener("noClipping", this);
 
-parameters.addParameterListener("preGain", this);
-parameters.addParameterListener("postGain", this);
-parameters.addParameterListener("p_squareClipping_clipValue", this);
-parameters.addParameterListener("noClipping", this);
- 
-parameters.addParameterListener("sawToothClipping", this);
-parameters.addParameterListener("squareClipping", this);
-parameters.addParameterListener("noDistortion", this);
+  parameters.addParameterListener("sawToothClipping", this);
+  parameters.addParameterListener("squareClipping", this);
+  parameters.addParameterListener("noDistortion", this);
 
-parameters.addParameterListener("tripleSmoothingDistortion", this);
-parameters.addParameterListener("customDistortion", this);
-     
+  parameters.addParameterListener("tripleSmoothingDistortion", this);
+  parameters.addParameterListener("customDistortion", this);
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor() {}
@@ -176,8 +177,6 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(
 void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
                                              juce::MidiBuffer &midiMessages) {
 
-
-
   juce::ignoreUnused(midiMessages);
 
   juce::ScopedNoDenormals noDenormals;
@@ -200,7 +199,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   // Alternatively, you can process the samples with the channels
   // interleaved by keeping the same state.
 
-
   for (int channel = 0; channel < totalNumInputChannels; ++channel) {
 
     auto *channelData = buffer.getWritePointer(channel);
@@ -209,8 +207,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
 
       channelData[sample] = buffer.getSample(channel, sample);
 
-      effectChain.processSample(channelData[sample]);    
-
+      effectChain.processSample(channelData[sample]);
     }
   }
 }
@@ -254,17 +251,16 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
   juce::ignoreUnused(data, sizeInBytes);
 }
 
-void AudioPluginAudioProcessor::parameterChanged(const juce::String & parameterID, float newValue) {
+void AudioPluginAudioProcessor::parameterChanged(
+    const juce::String &parameterID, float newValue) {
 
-
-  if(parameterID.substring(0,2) == "p_") {
+  if (parameterID.substring(0, 2) == "p_") {
     effectChain.addEffectParameter(AudioEffectParameter(parameterID, newValue));
 
-
-  } else if(newValue == 0) {
+  } else if (newValue == 0) {
     effectChain.removeEffect(parameterID);
   } else {
-    effectChain.addEffect(parameterID,parameters);
+    effectChain.addEffect(parameterID, parameters);
   }
 }
 

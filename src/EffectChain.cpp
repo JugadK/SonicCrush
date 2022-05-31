@@ -1,6 +1,7 @@
 #include "EffectChain.hpp"
 #include "AudioEffects/AudioEffect.hpp"
 #include "AudioEffects/CustomDistortionEquation.hpp"
+#include "AudioEffects/SawToothClipping.hpp"
 #include "AudioEffects/SquareClipping.hpp"
 #include "AudioEffects/TripleSmoothingDistortion.hpp"
 #include <functional>
@@ -32,6 +33,8 @@ EffectChain::EffectChain() {
        createAudioEffectFromParameter<CustomDistortionEquation>},
       {juce::String("squareClipping"),
        createAudioEffectFromParameter<SquareClipping>},
+      {juce::String("sawToothClipping"),
+       createAudioEffectFromParameter<SawToothClipping>},
   };
 }
 
@@ -45,8 +48,6 @@ void EffectChain::processSample(float &sample) {
 void EffectChain::addEffect(const juce::String &parameterId,
                             juce::AudioProcessorValueTreeState &vts) {
 
-  juce::String str = parameterId;
-  std::cout << parameterId << std::endl;
   if (valueMap.count(parameterId)) {
     effects.push_back(valueMap[parameterId](vts));
   }
