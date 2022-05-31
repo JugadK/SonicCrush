@@ -256,13 +256,14 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data,
   juce::ignoreUnused(data, sizeInBytes);
 }
 
+// TODO3 make this nicer
 void AudioPluginAudioProcessor::parameterChanged(
     const juce::String &parameterID, float newValue) {
 
   if (parameterID.substring(0, 2) == "p_") {
     effectChain.addEffectParameter(AudioEffectParameter(parameterID, newValue));
 
-  } else if (newValue == 0) {
+  } else if (newValue == 0 && isValidAudioEffectString(parameterID)) {
     effectChain.removeEffect(stringToAudioEffect(parameterID));
   } else if(isValidAudioEffectString(parameterID)) {
 

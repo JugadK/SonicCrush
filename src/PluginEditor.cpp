@@ -103,10 +103,10 @@ void AudioPluginAudioProcessorEditor::onReturnPressed(
 
     // This is a hack due to the equation not being stored in valuetree
     // TODO add customequation into valuetree
-    // CustomDistortionEquation::current_equation = str;
+    CustomDistortionEquation::current_equation = str;
 
-    // juce::String eqParameter = "p_customDistortion_equationName";
-    // audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
+    juce::String eqParameter = "p_customDistortion_equationName";
+    audioProcessor.effectChain.addEffectParameter(AudioEffectParameter(eqParameter,str));
 
     std::cout << "hello";
   }
