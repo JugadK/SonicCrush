@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 17)
 
-project(SonicCrush VERSION 0.0.1)
+project(SonicCrush VERSION 0.0.2)
 
 find_package(CURL)
 add_subdirectory(modules/JUCE)
