@@ -17,7 +17,6 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 
-
 juce_add_plugin(SonicCrush
     VERSION 0.0.1
     COMPANY_NAME BasedInc.
@@ -58,6 +57,8 @@ target_sources(SonicCrush
             src/AudioEffects/TripleSmoothingDistortion.hpp
             src/AudioEffects/SquareClipping.cpp
             src/AudioEffects/SawToothClipping.cpp
+            src/Enums/AudioEffectNames.cpp
+            src/Enums/AudioEffectNames.def
             src/EffectChain.cpp
             src/AudioEffectParameter.cpp
             src/PluginEditor.cpp
@@ -87,12 +88,15 @@ add_executable(
           tests/unit/AudioEffects/SquareClipping.cpp
           tests/unit/AudioEffects/SawToothClipping.cpp
           tests/unit/AudioEffectParameter.cpp
+          tests/unit/Enums/AudioEffectNames.cpp
           tests/integration/EffectChain.cpp
           tests/mocks/MockAudioProcessor.hpp
           src/AudioEffects/CustomDistortionEquation.cpp
           src/AudioEffects/TripleSmoothingDistortion.cpp
           src/AudioEffects/SquareClipping.cpp
           src/AudioEffects/SawToothClipping.cpp
+          src/Enums/AudioEffectNames.cpp
+          src/Enums/AudioEffectNames.def
           src/EffectChain.cpp
           src/PluginProcessor.cpp
           src/AudioEffectParameter.cpp

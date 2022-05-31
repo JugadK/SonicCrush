@@ -7,10 +7,10 @@
 #include <ostream>
 
 class TripleSmoothingDistortion : public AudioEffect {
-    public:
-        TripleSmoothingDistortion(juce::AudioProcessorValueTreeState& vts);
-        ~TripleSmoothingDistortion();
-        void processAudio(float &sample);
-        juce::String getName();
-        void changeParameter(AudioEffectParameter effectParameter);
+public:
+  TripleSmoothingDistortion(juce::AudioProcessorValueTreeState &vts);
+  ~TripleSmoothingDistortion();
+  void processAudio(float &sample);
+  AudioEffects getName();
+  void changeParameter(AudioEffectParameter effectParameter);
 };

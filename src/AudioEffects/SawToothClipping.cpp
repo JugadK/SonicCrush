@@ -3,17 +3,17 @@
 
 SawToothClipping::SawToothClipping(juce::AudioProcessorValueTreeState &vts)
     : clipValue("p_sawToothClipping_clipValue",
-                *(vts.getRawParameterValue("p_sawToothClipping_clipValue"))),
+                std::abs(*(vts.getRawParameterValue("p_sawToothClipping_clipValue")))),
+      currentSawToothStep(0.0f),
       // TODO make this grab a variable from valuetreestate
       currentSawToothIncrement("p_sawToothClipping_currentSawToothIncrement",
-                               0.001f),
-      currentSawToothStep(0.0f){};
+                               0.001f){};
 
 SawToothClipping::~SawToothClipping(){};
 
 void SawToothClipping::processAudio(float &sample) {
 
-  if (std::abs(sample) > clipValue.getFloatData()) {
+  if (std::abs(sample) > clipValue.getFloatData()  && clipValue.getFloatData() != 0.0f) {
 
     currentSawToothStep =
         currentSawToothStep + currentSawToothIncrement.getFloatData();
@@ -32,15 +32,15 @@ void SawToothClipping::processAudio(float &sample) {
 }
 
 void SawToothClipping::setClipValue(float value) {
-  clipValue.setFloatData(value);
+  clipValue.floatValue = value;
 }
 
-juce::String SawToothClipping::getName() {
-  return juce::String("sawToothClipping");
+AudioEffects SawToothClipping::getName() {
+  return AudioEffects::sawToothClipping;
 }
 
 void SawToothClipping::changeParameter(AudioEffectParameter effectParameter) {
   if (effectParameter.getParameterName() == "clipValue") {
-    setClipValue(effectParameter.getFloatData());
+    setClipValue(std::abs(effectParameter.getFloatData()));
   }
 }

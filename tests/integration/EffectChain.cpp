@@ -56,11 +56,11 @@ TEST(EffectChain, processSample) {
   // Without this if the test that changes it to 4*x is run before
   // The processAudio returns 1.0f;
   // This is why state is bad kids
-  // CustomDistortionEquation::current_equation = "2*x";
+  CustomDistortionEquation::current_equation = "2*x";
 
   EffectChain effectChain = EffectChain();
 
-  std::vector<juce::String> effectNames;
+  std::vector<AudioEffects> effectNames;
 
   // Since our valueMap is unordered we have no way of telling what order ]
   // The audioeffects are returned in, so to find the correct sample value
@@ -74,19 +74,19 @@ TEST(EffectChain, processSample) {
   }
 
   
-  std::unordered_map<juce::String, std::vector<float>> sampleMap = {
-      {juce::String("tripleSmoothingDistortion"),
+  std::unordered_map<AudioEffects, std::vector<float>> sampleMap = {
+      {AudioEffects::tripleSmoothingDistortion,
        {0.015f, 0.015f, 0.015f, 0.015f, 0.015f}},
-      {juce::String("customDistortion"), {0.5f, 0.5f, 0.5f, 0.5f, 0.5f}},
-      {juce::String("squareClipping"), {0.1f, 0.1f, 0.1f, 0.1f, 0.1f}},
-      {juce::String("sawToothClipping"),
+      {AudioEffects::customDistortion, {0.5f, 0.5f, 0.5f, 0.5f, 0.5f}},
+      {AudioEffects::squareClipping, {0.1f, 0.1f, 0.1f, 0.1f, 0.1f}},
+      {AudioEffects::sawToothClipping,
        {0.101f, 0.102f, 0.103f, 0.104f, 0.105f}},
 
   };
 
   for (int i = 0; i < effectNames.size(); i++) {
 
-    juce::String currentEffect = effectNames[i];
+    AudioEffects currentEffect = effectNames[i];
     effectChain.addEffect(currentEffect, vts);
 
     for (int j = 0; j < 5; j++) {
@@ -114,7 +114,7 @@ TEST(EffectChain, processSampleClippingValue) {
 
   EffectChain effectChain = EffectChain();
 
-  juce::String parameterId = "squareClipping";
+  AudioEffects parameterId = AudioEffects::squareClipping;
   effectChain.addEffect(parameterId, vts);
 
   float sample = 1.0f;
@@ -136,7 +136,7 @@ TEST(EffectChain, addAndRemoveEffect) {
 
   EffectChain effectChain = EffectChain();
 
-  juce::String parameterId = "customDistortion";
+  AudioEffects parameterId = AudioEffects::customDistortion;
 
   effectChain.addEffect(parameterId, vts);
   effectChain.removeEffect(parameterId);
@@ -164,7 +164,7 @@ TEST(EffectChain, findEffect) {
 
   EffectChain effectChain = EffectChain();
 
-  juce::String parameterId = "squareClipping";
+  AudioEffects parameterId = AudioEffects::squareClipping;
   effectChain.addEffect(parameterId, vts);
 
   float sample = 1.0f;

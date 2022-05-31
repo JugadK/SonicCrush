@@ -1,4 +1,5 @@
 #include "AudioEffects/TripleSmoothingDistortion.hpp"
+#include "Enums/AudioEffectNames.hpp"
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -13,12 +14,12 @@ class EffectChain {
 public:
   EffectChain();
   void processSample(float &sample);
-  void addEffect(const juce::String &parameterId,
+  void addEffect(AudioEffects audioEffect,
                  juce::AudioProcessorValueTreeState &vts);
-  void removeEffect(const juce::String &parameterId);
-  int getEffectIndex(const juce::String &parameterId);
+  void removeEffect(AudioEffects audioEffect);
+  int getEffectIndex(AudioEffects audioEffect);
   void addEffectParameter(AudioEffectParameter audioEffectParameter);
-  std::unordered_map<juce::String,
+  std::unordered_map<AudioEffects,
                      std::function<std::unique_ptr<AudioEffect>(
                          juce::AudioProcessorValueTreeState &vts)>>
       valueMap;

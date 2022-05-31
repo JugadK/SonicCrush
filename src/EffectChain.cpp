@@ -4,6 +4,7 @@
 #include "AudioEffects/SawToothClipping.hpp"
 #include "AudioEffects/SquareClipping.hpp"
 #include "AudioEffects/TripleSmoothingDistortion.hpp"
+#include "Enums/AudioEffectNames.hpp"
 #include <functional>
 #include <memory>
 #include <ostream>
@@ -27,13 +28,13 @@ createAudioEffectFromParameter(juce::AudioProcessorValueTreeState &vts) {
 
 EffectChain::EffectChain() {
   valueMap = {
-      {juce::String("tripleSmoothingDistortion"),
+      {AudioEffects::tripleSmoothingDistortion,
        createAudioEffectFromParameter<TripleSmoothingDistortion>},
-      {juce::String("customDistortion"),
+      {AudioEffects::customDistortion,
        createAudioEffectFromParameter<CustomDistortionEquation>},
-      {juce::String("squareClipping"),
+      {AudioEffects::squareClipping,
        createAudioEffectFromParameter<SquareClipping>},
-      {juce::String("sawToothClipping"),
+      {AudioEffects::sawToothClipping,
        createAudioEffectFromParameter<SawToothClipping>},
   };
 }
@@ -45,27 +46,27 @@ void EffectChain::processSample(float &sample) {
   }
 }
 
-void EffectChain::addEffect(const juce::String &parameterId,
+void EffectChain::addEffect(AudioEffects audioEffect,
                             juce::AudioProcessorValueTreeState &vts) {
 
-  if (valueMap.count(parameterId)) {
-    effects.push_back(valueMap[parameterId](vts));
+  if (valueMap.count(audioEffect)) {
+    effects.push_back(valueMap[audioEffect](vts));
   }
 }
 
-void EffectChain::removeEffect(const juce::String &parameterId) {
+void EffectChain::removeEffect(AudioEffects audioEffect) {
 
-  int index = getEffectIndex(parameterId);
+  int index = getEffectIndex(audioEffect);
 
   if (index != -1) {
     effects.erase(effects.begin() + index);
   }
 }
 
-int EffectChain::getEffectIndex(const juce::String &parameterId) {
+int EffectChain::getEffectIndex(AudioEffects audioEffect) {
 
   for (u_long i = 0; i < effects.size(); i++) {
-    if (effects[i]->getName() == parameterId) {
+    if (effects[i]->getName() == audioEffect) {
       return i;
     }
   }
@@ -78,6 +79,6 @@ void EffectChain::addEffectParameter(
   int index = getEffectIndex(audioEffectParameter.getAudioEffectName());
 
   if (index != -1) {
-    effects[index]->changeParameter(audioEffectParameter);
+    effects[(u_long) index]->changeParameter(audioEffectParameter);
   }
 }

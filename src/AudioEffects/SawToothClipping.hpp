@@ -6,7 +6,7 @@ public:
   ~SawToothClipping();
   void processAudio(float &sample);
   void setClipValue(float value);
-  juce::String getName();
+  AudioEffects getName();
   void changeParameter(AudioEffectParameter effectParameter);
 private:
   AudioEffectParameter clipValue;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "muParserCallback.h"
+#include "Enums/AudioEffectNames.hpp"
 #include <atomic>
 #include <juce_core/juce_core.h>
 #include <memory>
@@ -11,16 +12,14 @@ public:
   AudioEffectParameter(juce::String parameterString, float value);
   AudioEffectParameter(juce::String parameterString, std::string &value);
   ~AudioEffectParameter(){};
-  juce::String getAudioEffectName();
+  AudioEffects getAudioEffectName();
   juce::String getParameterName();
   std::string getStringData();
-  void setStringData(std::string &newData);
   float getFloatData();
-  void setFloatData(float newData);
+  std::variant<float, std::string> floatValue, stringValue;
 
 private:
   AudioEffectParameter(juce::String parameterString);
-  juce::String audioEffectName;
+  AudioEffects audioEffectName;
   juce::String parameterName;
-  std::variant<float, std::string> floatValue, stringValue;
 };

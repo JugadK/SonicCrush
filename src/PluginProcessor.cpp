@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "../modules/muparser/include/muParser.h"
+#include "Enums/AudioEffectNames.hpp"
 #include "PluginEditor.h"
 #include <cstdlib>
 #include <ostream>
@@ -258,9 +259,9 @@ void AudioPluginAudioProcessor::parameterChanged(
     effectChain.addEffectParameter(AudioEffectParameter(parameterID, newValue));
 
   } else if (newValue == 0) {
-    effectChain.removeEffect(parameterID);
+    effectChain.removeEffect(stringToAudioEffect(parameterID));
   } else {
-    effectChain.addEffect(parameterID, parameters);
+    effectChain.addEffect(stringToAudioEffect(parameterID), parameters);
   }
 }
 

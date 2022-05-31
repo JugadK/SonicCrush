@@ -9,7 +9,7 @@ SquareClipping::SquareClipping(juce::AudioProcessorValueTreeState &vts)
 SquareClipping::~SquareClipping(){};
 
 void SquareClipping::setClipValue(float value) {
-  clipValue.setFloatData(value);
+  clipValue.floatValue = value;
 }
 
 void SquareClipping::processAudio(float &sample) {
@@ -23,8 +23,8 @@ void SquareClipping::processAudio(float &sample) {
   }
 }
 
-juce::String SquareClipping::getName() {
-  return juce::String("squareClipping");
+AudioEffects SquareClipping::getName() {
+  return AudioEffects::squareClipping;
 }
 
 void SquareClipping::changeParameter(AudioEffectParameter effectParameter) {

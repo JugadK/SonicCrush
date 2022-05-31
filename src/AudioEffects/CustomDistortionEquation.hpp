@@ -8,7 +8,7 @@ public:
   ~CustomDistortionEquation();
   void processAudio(float &sample);
   void setDistortionEquation(std::string equation);
-  juce::String getName();
+  AudioEffects getName();
   std::string getDistortionEquation();
   void changeParameter(AudioEffectParameter effectParameter);
   static std::string current_equation;

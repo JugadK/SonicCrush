@@ -7,6 +7,6 @@ class AudioEffect {
     public:
         virtual void processAudio(float &sample) = 0;    
         virtual ~AudioEffect() {};  
-        virtual juce::String getName() = 0;
+        virtual AudioEffects getName() = 0;
         virtual void changeParameter(AudioEffectParameter effectParameter) = 0;
 };

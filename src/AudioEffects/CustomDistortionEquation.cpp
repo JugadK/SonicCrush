@@ -38,9 +38,8 @@ void CustomDistortionEquation::setDistortionEquation(std::string equation) {
   distortionEquationParser.DefineVar("pi", &pi);
 }
 
-juce::String CustomDistortionEquation::getName() {
-  juce::String name = "customDistortion";
-  return name;
+AudioEffects CustomDistortionEquation::getName() {
+  return AudioEffects::customDistortion;
 }
 
 std::string CustomDistortionEquation::getDistortionEquation() {

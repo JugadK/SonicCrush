@@ -12,10 +12,9 @@ void TripleSmoothingDistortion::processAudio(float &sample) {
   sample = std::pow(sample, 3);
 }
 
-juce::String TripleSmoothingDistortion::getName() {
+AudioEffects TripleSmoothingDistortion::getName() {
 
-  juce::String name = "tripleSmoothingDistortion";
-  return name;
+  return AudioEffects::tripleSmoothingDistortion;
 }
 
 void TripleSmoothingDistortion::changeParameter(
