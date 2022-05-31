@@ -4,15 +4,12 @@
 
 SquareClipping::SquareClipping(juce::AudioProcessorValueTreeState &vts)
     : clipValue("p_squareClipping_clipValue",
-                *(vts.getRawParameterValue("p_squareClipping_clipValue"))){
-
-                  std::cout << "SquareClipping made";
-                };
+                *(vts.getRawParameterValue("p_squareClipping_clipValue"))){};
 
 SquareClipping::~SquareClipping(){};
 
 void SquareClipping::setClipValue(float value) {
-    clipValue.setFloatData(value);
+  clipValue.setFloatData(value);
 }
 
 void SquareClipping::processAudio(float &sample) {
@@ -27,12 +24,11 @@ void SquareClipping::processAudio(float &sample) {
 }
 
 juce::String SquareClipping::getName() {
-    return juce::String("squareClipping");
+  return juce::String("squareClipping");
 }
 
 void SquareClipping::changeParameter(AudioEffectParameter effectParameter) {
-    if(effectParameter.getParameterName() == "clipValue") {
-        setClipValue(effectParameter.getFloatData());
-    }
+  if (effectParameter.getParameterName() == "clipValue") {
+    setClipValue(effectParameter.getFloatData());
+  }
 }
-
