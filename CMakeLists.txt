@@ -57,6 +57,7 @@ target_sources(SonicCrush
             src/AudioEffects/TripleSmoothingDistortion.cpp
             src/AudioEffects/TripleSmoothingDistortion.hpp
             src/AudioEffects/SquareClipping.cpp
+            src/AudioEffects/SawToothClipping.cpp
             src/EffectChain.cpp
             src/AudioEffectParameter.cpp
             src/PluginEditor.cpp
@@ -84,12 +85,14 @@ add_executable(
           tests/unit/AudioEffects/TripleSmoothingDistortion.cpp
           tests/unit/AudioEffects/CustomDistortionEquation.cpp
           tests/unit/AudioEffects/SquareClipping.cpp
+          tests/unit/AudioEffects/SawToothClipping.cpp
           tests/unit/AudioEffectParameter.cpp
           tests/integration/EffectChain.cpp
           tests/mocks/MockAudioProcessor.hpp
           src/AudioEffects/CustomDistortionEquation.cpp
           src/AudioEffects/TripleSmoothingDistortion.cpp
           src/AudioEffects/SquareClipping.cpp
+          src/AudioEffects/SawToothClipping.cpp
           src/EffectChain.cpp
           src/PluginProcessor.cpp
           src/AudioEffectParameter.cpp
